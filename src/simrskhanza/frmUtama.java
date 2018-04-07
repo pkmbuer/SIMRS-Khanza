@@ -203,7 +203,9 @@ import grafikanalisa.GrafikKunjunganPerTahun;
 import grafikanalisa.GrafikKunjunganPerTanggal;
 import grafikanalisa.GrafikKunjunganPoli;
 import grafikanalisa.GrafikKunjunganRanapPerTahun;
+import grafikanalisa.GrafikLabRalanPerBulan;
 import grafikanalisa.GrafikLabRalanPerTahun;
+import grafikanalisa.GrafikRadRalanPerBulan;
 import grafikanalisa.GrafikRadRalanPerTahun;
 import grafikanalisa.GrafikStatusBatalRegPerBulan;
 import grafikanalisa.GrafikStatusBatalRegPerTahun;
@@ -218,6 +220,7 @@ import inventory.DlgDaftarPermintaanResep;
 import inventory.DlgGolongan;
 import inventory.DlgKategori;
 import inventory.DlgObatPerTanggal;
+import inventory.DlgPengeluaranApotek;
 import inventory.DlgPenjualanPerTanggal;
 import inventory.DlgPermintaan;
 import inventory.DlgRekapPermintaan;
@@ -757,6 +760,9 @@ public class frmUtama extends javax.swing.JFrame {
         btnCekBPJSRujukanKartuPCare = new widget.ButtonBig();
         btnCekBPJSRujukanKartuRS = new widget.ButtonBig();
         btnRujukanKeluarBPJS = new widget.ButtonBig();
+        btnGrafikLabRalanPerBulan = new widget.ButtonBig();
+        btnStokKeluarMedis = new widget.ButtonBig();
+        btnGrafikRadRalanPerBulan = new widget.ButtonBig();
         tanggal = new widget.Tanggal();
         btnDataPenjualan = new widget.ButtonBig();
         btnInputPenjualan = new widget.ButtonBig();
@@ -4686,6 +4692,42 @@ public class frmUtama extends javax.swing.JFrame {
         });
         Panelmenu.add(btnRujukanKeluarBPJS);
 
+        btnGrafikLabRalanPerBulan.setIcon(new javax.swing.ImageIcon(getClass().getResource("/48x48/1491582015_11.png"))); // NOI18N
+        btnGrafikLabRalanPerBulan.setText("Kunjungan Lab Ralan Per Bulan");
+        btnGrafikLabRalanPerBulan.setIconTextGap(0);
+        btnGrafikLabRalanPerBulan.setName("btnGrafikLabRalanPerBulan"); // NOI18N
+        btnGrafikLabRalanPerBulan.setPreferredSize(new java.awt.Dimension(200, 90));
+        btnGrafikLabRalanPerBulan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGrafikLabRalanPerBulanActionPerformed(evt);
+            }
+        });
+        Panelmenu.add(btnGrafikLabRalanPerBulan);
+
+        btnStokKeluarMedis.setIcon(new javax.swing.ImageIcon(getClass().getResource("/48x48/shopping-basket-full.png"))); // NOI18N
+        btnStokKeluarMedis.setText("Stok Keluar Medis");
+        btnStokKeluarMedis.setIconTextGap(0);
+        btnStokKeluarMedis.setName("btnStokKeluarMedis"); // NOI18N
+        btnStokKeluarMedis.setPreferredSize(new java.awt.Dimension(200, 90));
+        btnStokKeluarMedis.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnStokKeluarMedisActionPerformed(evt);
+            }
+        });
+        Panelmenu.add(btnStokKeluarMedis);
+
+        btnGrafikRadRalanPerBulan.setIcon(new javax.swing.ImageIcon(getClass().getResource("/48x48/1491582080_6.png"))); // NOI18N
+        btnGrafikRadRalanPerBulan.setText("Kunjungan Rad Ralan Per Bulan");
+        btnGrafikRadRalanPerBulan.setIconTextGap(0);
+        btnGrafikRadRalanPerBulan.setName("btnGrafikRadRalanPerBulan"); // NOI18N
+        btnGrafikRadRalanPerBulan.setPreferredSize(new java.awt.Dimension(200, 90));
+        btnGrafikRadRalanPerBulan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGrafikRadRalanPerBulanActionPerformed(evt);
+            }
+        });
+        Panelmenu.add(btnGrafikRadRalanPerBulan);
+
         scrollPane2.setViewportView(Panelmenu);
 
         panelMenu.add(scrollPane2, java.awt.BorderLayout.CENTER);
@@ -4694,7 +4736,7 @@ public class frmUtama extends javax.swing.JFrame {
 
         tanggal.setEditable(false);
         tanggal.setForeground(new java.awt.Color(50, 70, 50));
-        tanggal.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "04/03/2018" }));
+        tanggal.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "27/03/2018" }));
         tanggal.setDisplayFormat("dd/MM/yyyy");
         tanggal.setName("tanggal"); // NOI18N
         tanggal.setOpaque(false);
@@ -9957,6 +9999,40 @@ private void BtnSimpanPassKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:e
         this.setCursor(Cursor.getDefaultCursor());
     }//GEN-LAST:event_btnRujukanKeluarBPJSActionPerformed
 
+    private void btnGrafikLabRalanPerBulanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGrafikLabRalanPerBulanActionPerformed
+        isTutup();
+        DlgHome.dispose();
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        GrafikLabRalanPerBulan aplikasi=new GrafikLabRalanPerBulan(this,true);
+        aplikasi.setSize(PanelUtama.getWidth(), PanelUtama.getHeight());
+        aplikasi.setLocationRelativeTo(PanelUtama);
+        aplikasi.setVisible(true);
+        this.setCursor(Cursor.getDefaultCursor());
+    }//GEN-LAST:event_btnGrafikLabRalanPerBulanActionPerformed
+
+    private void btnStokKeluarMedisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStokKeluarMedisActionPerformed
+        isTutup();
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        DlgPengeluaranApotek pengeluaran=new DlgPengeluaranApotek(this,false);
+        pengeluaran.isCek();
+        pengeluaran.setSize(PanelUtama.getWidth(),PanelUtama.getHeight());
+        pengeluaran.setLocationRelativeTo(PanelUtama);
+        pengeluaran.setVisible(true);
+        DlgHome.dispose();
+        this.setCursor(Cursor.getDefaultCursor());
+    }//GEN-LAST:event_btnStokKeluarMedisActionPerformed
+
+    private void btnGrafikRadRalanPerBulanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGrafikRadRalanPerBulanActionPerformed
+        isTutup();
+        DlgHome.dispose();
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        GrafikRadRalanPerBulan aplikasi=new GrafikRadRalanPerBulan(this,true);
+        aplikasi.setSize(PanelUtama.getWidth(), PanelUtama.getHeight());
+        aplikasi.setLocationRelativeTo(PanelUtama);
+        aplikasi.setVisible(true);
+        this.setCursor(Cursor.getDefaultCursor());
+    }//GEN-LAST:event_btnGrafikRadRalanPerBulanActionPerformed
+
     /**
     * @param args the command line arguments
     */
@@ -10086,8 +10162,10 @@ private void BtnSimpanPassKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:e
     private widget.ButtonBig btnGrafikKunjunganPerTanggal;
     private widget.ButtonBig btnGrafikKunjunganPoli;
     private widget.ButtonBig btnGrafikKunjunganRanapPerTahun;
+    private widget.ButtonBig btnGrafikLabRalanPerBulan;
     private widget.ButtonBig btnGrafikLabRalanPerTahun;
     private widget.ButtonBig btnGrafikPerPerujuk;
+    private widget.ButtonBig btnGrafikRadRalanPerBulan;
     private widget.ButtonBig btnGrafikRadRalanPerTahun;
     private widget.ButtonBig btnGrafikStatusRegBatalPerBulan;
     private widget.ButtonBig btnGrafikStatusRegBatalPerTahun;
@@ -10275,6 +10353,7 @@ private void BtnSimpanPassKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:e
     private widget.ButtonBig btnSirkulasiBerkas;
     private widget.ButtonBig btnSirkulasiInventaris;
     private widget.ButtonBig btnStokKeluarIPSRSPerTanggal;
+    private widget.ButtonBig btnStokKeluarMedis;
     private widget.ButtonBig btnStokObatPasien;
     private widget.ButtonBig btnSuplier;
     private widget.ButtonBig btnSuplierIPSRS;
@@ -10568,7 +10647,16 @@ private void BtnSimpanPassKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:e
         }else if(jmlmenu<=310){
             Panelmenu.setLayout(new GridLayout(0,5));
             Panelmenu.setPreferredSize(new Dimension(scrollPane2.getWidth()-10,scrollPane2.getHeight()+((scrollPane2.getHeight()/4)*58)));
-        }                                       
+        }else if(jmlmenu<=315){
+            Panelmenu.setLayout(new GridLayout(0,5));
+            Panelmenu.setPreferredSize(new Dimension(scrollPane2.getWidth()-10,scrollPane2.getHeight()+((scrollPane2.getHeight()/4)*59)));
+        }else if(jmlmenu<=320){
+            Panelmenu.setLayout(new GridLayout(0,5));
+            Panelmenu.setPreferredSize(new Dimension(scrollPane2.getWidth()-10,scrollPane2.getHeight()+((scrollPane2.getHeight()/4)*60)));
+        }else if(jmlmenu<=325){
+            Panelmenu.setLayout(new GridLayout(0,5));
+            Panelmenu.setPreferredSize(new Dimension(scrollPane2.getWidth()-10,scrollPane2.getHeight()+((scrollPane2.getHeight()/4)*61)));
+        }                                        
         Panelmenu.repaint(); 
         DlgHome.setVisible(true);               
     }
@@ -10897,6 +10985,11 @@ private void BtnSimpanPassKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:e
 
             if(var.getpiutang_obat()==true){
                  Panelmenu.add(btnPiutang);  
+                 jmlmenu++;
+            }
+            
+            if(var.getpengeluaran_stok_apotek()==true){
+                 Panelmenu.add(btnStokKeluarMedis);  
                  jmlmenu++;
             }
 
@@ -12041,6 +12134,16 @@ private void BtnSimpanPassKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:e
                 Panelmenu.add(btnGrafikPerPerujuk);
                 jmlmenu++;
             }
+            
+            if(var.getgrafik_lab_ralanbulan()==true){
+                Panelmenu.add(btnGrafikLabRalanPerBulan);
+                jmlmenu++;
+            }
+            
+            if(var.getgrafik_rad_ralanbulan()==true){
+                Panelmenu.add(btnGrafikRadRalanPerBulan);
+                jmlmenu++;
+            }
         }else if(cmbMenu.getSelectedIndex()==14){   
             jmlmenu=0;
             if(var.getaplikasi()==true){
@@ -12422,6 +12525,11 @@ private void BtnSimpanPassKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:e
 
         if(var.getpiutang_obat()==true){
              Panelmenu.add(btnPiutang);  
+             jmlmenu++;
+        }
+        
+        if(var.getpengeluaran_stok_apotek()==true){
+             Panelmenu.add(btnStokKeluarMedis);  
              jmlmenu++;
         }
 
@@ -13550,6 +13658,16 @@ private void BtnSimpanPassKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:e
             Panelmenu.add(btnGrafikPerPerujuk);
             jmlmenu++;
         }
+        
+        if(var.getgrafik_lab_ralanbulan()==true){
+            Panelmenu.add(btnGrafikLabRalanPerBulan);
+            jmlmenu++;
+        }
+        
+        if(var.getgrafik_rad_ralanbulan()==true){
+            Panelmenu.add(btnGrafikRadRalanPerBulan);
+            jmlmenu++;
+        }
 
         if(var.getaplikasi()==true){
             Panelmenu.add(btnSetupAplikasi);
@@ -14040,8 +14158,14 @@ private void BtnSimpanPassKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:e
             if(btnPiutang.getText().toLowerCase().trim().contains(TCari.getText().toLowerCase().trim())){
                 Panelmenu.add(btnPiutang);  
                 jmlmenu++;
-            }
-                
+            }                
+        }
+        
+        if(var.getpengeluaran_stok_apotek()==true){
+            if(btnStokKeluarMedis.getText().toLowerCase().trim().contains(TCari.getText().toLowerCase().trim())){
+                Panelmenu.add(btnStokKeluarMedis);  
+                jmlmenu++;
+            }                
         }
 
         if(var.getretur_ke_suplier()==true){
@@ -15615,6 +15739,20 @@ private void BtnSimpanPassKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:e
         if(var.getgrafik_per_perujuk()==true){
             if(btnGrafikPerPerujuk.getText().toLowerCase().trim().contains(TCari.getText().toLowerCase().trim())){
                 Panelmenu.add(btnGrafikPerPerujuk);
+                jmlmenu++;
+            }                
+        }
+        
+        if(var.getgrafik_lab_ralanbulan()==true){
+            if(btnGrafikLabRalanPerBulan.getText().toLowerCase().trim().contains(TCari.getText().toLowerCase().trim())){
+                Panelmenu.add(btnGrafikLabRalanPerBulan);
+                jmlmenu++;
+            }                
+        }
+        
+        if(var.getgrafik_rad_ralanbulan()==true){
+            if(btnGrafikRadRalanPerBulan.getText().toLowerCase().trim().contains(TCari.getText().toLowerCase().trim())){
+                Panelmenu.add(btnGrafikRadRalanPerBulan);
                 jmlmenu++;
             }                
         }

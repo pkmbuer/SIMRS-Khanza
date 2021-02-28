@@ -15,7 +15,7 @@ import fungsi.WarnaTable;
 import fungsi.koneksiDB;
 import fungsi.sekuel;
 import fungsi.validasi;
-import fungsi.var;
+import fungsi.akses;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
@@ -141,14 +141,13 @@ public final class DlgCekEntryRalan extends javax.swing.JDialog {
             }
         });
 
-        internalFrame1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(240, 245, 235)), "::[ Pengecekan Data Entry Rawat Jalan ]::", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(90, 120, 80))); // NOI18N
+        internalFrame1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(240, 245, 235)), "::[ Pengecekan Data Entry Rawat Jalan ]::", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(50,50,50))); // NOI18N
         internalFrame1.setName("internalFrame1"); // NOI18N
         internalFrame1.setLayout(new java.awt.BorderLayout(1, 1));
 
         Scroll.setName("Scroll"); // NOI18N
         Scroll.setOpaque(true);
 
-        tbBangsal.setToolTipText("Silahkan klik untuk memilih data yang mau diedit ataupun dihapus");
         tbBangsal.setName("tbBangsal"); // NOI18N
         tbBangsal.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -173,8 +172,6 @@ public final class DlgCekEntryRalan extends javax.swing.JDialog {
         label11.setPreferredSize(new java.awt.Dimension(50, 23));
         panelGlass5.add(label11);
 
-        Tgl1.setBackground(new java.awt.Color(245, 250, 240));
-        Tgl1.setEditable(false);
         Tgl1.setDisplayFormat("dd-MM-yyyy");
         Tgl1.setName("Tgl1"); // NOI18N
         Tgl1.setPreferredSize(new java.awt.Dimension(100, 23));
@@ -186,8 +183,6 @@ public final class DlgCekEntryRalan extends javax.swing.JDialog {
         label18.setPreferredSize(new java.awt.Dimension(25, 23));
         panelGlass5.add(label18);
 
-        Tgl2.setBackground(new java.awt.Color(245, 250, 240));
-        Tgl2.setEditable(false);
         Tgl2.setDisplayFormat("dd-MM-yyyy");
         Tgl2.setName("Tgl2"); // NOI18N
         Tgl2.setPreferredSize(new java.awt.Dimension(100, 23));
@@ -263,16 +258,16 @@ public final class DlgCekEntryRalan extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(null,"Maaf, data sudah habis. Tidak ada data yang bisa anda print...!!!!");
             //TCari.requestFocus();
         }else if(tabMode.getRowCount()!=0){
-            Sequel.AutoComitFalse();
+            
             Map<String, Object> param = new HashMap<>();         
-            param.put("namars",var.getnamars());
-            param.put("alamatrs",var.getalamatrs());
-            param.put("kotars",var.getkabupatenrs());
-            param.put("propinsirs",var.getpropinsirs());
-            param.put("kontakrs",var.getkontakrs());
-            param.put("emailrs",var.getemailrs());   
+            param.put("namars",akses.getnamars());
+            param.put("alamatrs",akses.getalamatrs());
+            param.put("kotars",akses.getkabupatenrs());
+            param.put("propinsirs",akses.getpropinsirs());
+            param.put("kontakrs",akses.getkontakrs());
+            param.put("emailrs",akses.getemailrs());   
             param.put("periode",Tgl1.getSelectedItem()+" s.d. "+Tgl2.getSelectedItem());   
-            Sequel.queryu("delete from temporary");
+            Sequel.queryu("truncate table temporary");
             for(int r=0;r<tabMode.getRowCount();r++){ 
                 if(!tbBangsal.getValueAt(r,0).toString().contains(">>")){
                     Sequel.menyimpan("temporary","'0','"+
@@ -292,8 +287,8 @@ public final class DlgCekEntryRalan extends javax.swing.JDialog {
                                     tabMode.getValueAt(r,13).toString()+"','','','','','','','','','','','','','','','','','','','','','','',''","Rekap Nota Pembayaran");
                 }                    
             }
-            Sequel.AutoComitTrue();   
-            Valid.MyReport("rptCekEntryRalan.jrxml",param,"::[ Laporan Pengecekan Entry Ralan ]::");
+               
+            Valid.MyReport("rptCekEntryRalan.jasper",param,"::[ Laporan Pengecekan Entry Ralan ]::");
         }
         this.setCursor(Cursor.getDefaultCursor());
 }//GEN-LAST:event_BtnPrintActionPerformed
@@ -411,29 +406,29 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                     kamarinap=Sequel.cariInteger("select count(distinct no_rawat) from reg_periksa where status_lanjut='Ranap' and tgl_registrasi=?",rs.getString(1));
                     ttlkamarinap=ttlkamarinap+kamarinap;
                     ttlregistrasi=ttlregistrasi+rs.getInt(2);
-                    tnddokter=Sequel.cariInteger("select count(distinct no_rawat) from rawat_jl_dr where tgl_perawatan=? group by no_rawat",rs.getString(1));
+                    tnddokter=Sequel.cariInteger("select count(distinct no_rawat) from rawat_jl_dr where tgl_perawatan=? ",rs.getString(1));
                     ttltnddokter=ttltnddokter+tnddokter;
-                    tndpetugas=Sequel.cariInteger("select count(distinct no_rawat) from rawat_jl_pr where tgl_perawatan=? group by no_rawat",rs.getString(1));
+                    tndpetugas=Sequel.cariInteger("select count(distinct no_rawat) from rawat_jl_pr where tgl_perawatan=? ",rs.getString(1));
                     ttltndpetugas=ttltndpetugas+tndpetugas;
-                    tnddrpr=Sequel.cariInteger("select count(distinct no_rawat) from rawat_jl_drpr where tgl_perawatan=? group by no_rawat",rs.getString(1));
+                    tnddrpr=Sequel.cariInteger("select count(distinct no_rawat) from rawat_jl_drpr where tgl_perawatan=? ",rs.getString(1));
                     ttltnddrpr=ttltnddrpr+tnddrpr;
-                    pemeriksaan=Sequel.cariInteger("select count(distinct no_rawat) from pemeriksaan_ralan where tgl_perawatan=? group by no_rawat",rs.getString(1));
+                    pemeriksaan=Sequel.cariInteger("select count(distinct no_rawat) from pemeriksaan_ralan where tgl_perawatan=? ",rs.getString(1));
                     ttlpemeriksaan=ttlpemeriksaan+pemeriksaan;
-                    laborat=Sequel.cariInteger("select count(distinct no_rawat) from periksa_lab where status='Ralan' and tgl_periksa=? group by no_rawat",rs.getString(1));
+                    laborat=Sequel.cariInteger("select count(distinct no_rawat) from periksa_lab where status='Ralan' and tgl_periksa=? ",rs.getString(1));
                     ttllaborat=ttllaborat+laborat;
-                    radiologi=Sequel.cariInteger("select count(distinct no_rawat) from periksa_radiologi where status='Ralan' and tgl_periksa=? group by no_rawat",rs.getString(1));
+                    radiologi=Sequel.cariInteger("select count(distinct no_rawat) from periksa_radiologi where status='Ralan' and tgl_periksa=? ",rs.getString(1));
                     ttlradiologi=ttlradiologi+radiologi;
-                    operasi=Sequel.cariInteger("select count(distinct no_rawat) from operasi where status='Ralan' and DATE_FORMAT(tgl_operasi, '%y-%m-%d')=? group by no_rawat",rs.getString(1));
+                    operasi=Sequel.cariInteger("select count(distinct no_rawat) from operasi where status='Ralan' and DATE_FORMAT(tgl_operasi, '%y-%m-%d')=? ",rs.getString(1));
                     ttloperasi=ttloperasi+operasi;
-                    obat=Sequel.cariInteger("select count(distinct no_rawat) from detail_pemberian_obat where status='Ralan' and tgl_perawatan=? group by no_rawat",rs.getString(1));
+                    obat=Sequel.cariInteger("select count(distinct no_rawat) from detail_pemberian_obat where status='Ralan' and tgl_perawatan=? ",rs.getString(1));
                     ttlobat=ttlobat+obat;
                     diagnosa=Sequel.cariInteger("select count(distinct diagnosa_pasien.no_rawat) from diagnosa_pasien inner join reg_periksa "+
-                            " on diagnosa_pasien.no_rawat=reg_periksa.no_rawat where diagnosa_pasien.status='Ralan' and reg_periksa.tgl_registrasi=? group by diagnosa_pasien.no_rawat",rs.getString(1));
+                            " on diagnosa_pasien.no_rawat=reg_periksa.no_rawat where diagnosa_pasien.status='Ralan' and reg_periksa.tgl_registrasi=?",rs.getString(1));
                     ttldiagnosa=ttldiagnosa+diagnosa;
                     prosedur=Sequel.cariInteger("select count(distinct prosedur_pasien.no_rawat) from prosedur_pasien inner join reg_periksa "+
-                            " on prosedur_pasien.no_rawat=reg_periksa.no_rawat where prosedur_pasien.status='Ralan' and reg_periksa.tgl_registrasi=? group by prosedur_pasien.no_rawat",rs.getString(1));
+                            " on prosedur_pasien.no_rawat=reg_periksa.no_rawat where prosedur_pasien.status='Ralan' and reg_periksa.tgl_registrasi=?",rs.getString(1));
                     ttlprosedur=ttlprosedur+prosedur;
-                    billing=Sequel.cariInteger("select count(distinct no_rawat) from nota_jalan where tanggal=? group by no_rawat",rs.getString(1));
+                    billing=Sequel.cariInteger("select count(distinct no_rawat) from nota_jalan where tanggal=?",rs.getString(1));
                     ttlbilling=ttlbilling+billing;
                     tabMode.addRow(new Object[]{
                        rs.getString(1),rs.getString(2),kamarinap,tnddokter,tndpetugas,

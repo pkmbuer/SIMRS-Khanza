@@ -4,7 +4,7 @@ import fungsi.batasInput;
 import fungsi.koneksiDB;
 import fungsi.sekuel;
 import fungsi.validasi;
-import fungsi.var;
+import fungsi.akses;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -34,10 +34,10 @@ public class DlgRHJS extends javax.swing.JDialog {
     private int i=0,z=0;
     double total=0,totaljm=0,detail_lab=0;
     private PreparedStatement ps,psrawatjalandr,psrawatjalandrpr,psrawatjalanpr,psrawatinapdr,psrawatinapdrpr,
-            psrawatinappr,psbiayaalat,psbiayasewaok,psakomodasi,psbagian_rs,psbiayasarpras,psperiksa_lab,
+            psrawatinappr,psbiayaalat,psbiayasewaok,psakomodasi,psbiayasarpras,psperiksa_lab,
             psdetail_lab,psperiksa_radiologi;
     private ResultSet rs,rsrawatjalandr,rsrawatjalandrpr,rsrawatjalanpr,rsrawatinapdr,rsrawatinapdrpr,rsrawatinappr,
-            rsbiayaalat,rsbiayasewaok,rsakomodasi,rsbagian_rs,rsbiayasarpras,rsperiksa_lab,
+            rsbiayaalat,rsbiayasewaok,rsakomodasi,rsbiayasarpras,rsperiksa_lab,
             rsdetail_lab,rsperiksa_radiologi;
     /** Creates new form DlgProgramStudi
      * @param parent
@@ -160,7 +160,7 @@ public class DlgRHJS extends javax.swing.JDialog {
             }
         });
 
-        internalFrame1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(240, 245, 235)), "::[ Rekap Harian Jasa Sarana Rumah Sakit ]::", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(90,120,80))); // NOI18N
+        internalFrame1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(240, 245, 235)), "::[ Rekap Harian Jasa Sarana Rumah Sakit ]::", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(50,50,50))); // NOI18N
         internalFrame1.setName("internalFrame1"); // NOI18N
         internalFrame1.setLayout(new java.awt.BorderLayout(1, 1));
 
@@ -193,7 +193,6 @@ public class DlgRHJS extends javax.swing.JDialog {
         label11.setPreferredSize(new java.awt.Dimension(85, 23));
         panelisi4.add(label11);
 
-        Tgl1.setEditable(false);
         Tgl1.setDisplayFormat("dd-MM-yyyy");
         Tgl1.setName("Tgl1"); // NOI18N
         Tgl1.setPreferredSize(new java.awt.Dimension(100, 23));
@@ -210,7 +209,6 @@ public class DlgRHJS extends javax.swing.JDialog {
         label18.setPreferredSize(new java.awt.Dimension(30, 23));
         panelisi4.add(label18);
 
-        Tgl2.setEditable(false);
         Tgl2.setDisplayFormat("dd-MM-yyyy");
         Tgl2.setName("Tgl2"); // NOI18N
         Tgl2.setPreferredSize(new java.awt.Dimension(100, 23));
@@ -280,6 +278,7 @@ public class DlgRHJS extends javax.swing.JDialog {
         panelisi1.setPreferredSize(new java.awt.Dimension(100, 56));
         panelisi1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 5, 9));
 
+        chkRalan.setBorder(null);
         chkRalan.setSelected(true);
         chkRalan.setText("Ralan");
         chkRalan.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -293,6 +292,7 @@ public class DlgRHJS extends javax.swing.JDialog {
         });
         panelisi1.add(chkRalan);
 
+        chkRanap.setBorder(null);
         chkRanap.setSelected(true);
         chkRanap.setText("Ranap");
         chkRanap.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -306,6 +306,7 @@ public class DlgRHJS extends javax.swing.JDialog {
         });
         panelisi1.add(chkRanap);
 
+        chkOperasi.setBorder(null);
         chkOperasi.setSelected(true);
         chkOperasi.setText("Operasi");
         chkOperasi.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -319,12 +320,13 @@ public class DlgRHJS extends javax.swing.JDialog {
         });
         panelisi1.add(chkOperasi);
 
+        chkLaborat.setBorder(null);
         chkLaborat.setSelected(true);
         chkLaborat.setText("Laboratorium");
         chkLaborat.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         chkLaborat.setName("chkLaborat"); // NOI18N
         chkLaborat.setOpaque(false);
-        chkLaborat.setPreferredSize(new java.awt.Dimension(90, 30));
+        chkLaborat.setPreferredSize(new java.awt.Dimension(95, 30));
         chkLaborat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 chkLaboratActionPerformed(evt);
@@ -332,6 +334,7 @@ public class DlgRHJS extends javax.swing.JDialog {
         });
         panelisi1.add(chkLaborat);
 
+        chkRadiologi.setBorder(null);
         chkRadiologi.setSelected(true);
         chkRadiologi.setText("Radiologi");
         chkRadiologi.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -417,8 +420,8 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
             JOptionPane.showMessageDialog(null,"Maaf, data sudah habis. Tidak ada data yang bisa anda print...!!!!");
             //TCari.requestFocus();
         }else if(tabMode.getRowCount()!=0){
-            Sequel.AutoComitFalse();
-            Sequel.queryu("delete from temporary");
+            
+            Sequel.queryu("truncate table temporary");
             int row=tabMode.getRowCount();
             for(int r=0;r<row;r++){  
                 Sequel.menyimpan("temporary","'0','"+
@@ -429,17 +432,16 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                 tabMode.getValueAt(r,4).toString().replaceAll("'","`")+"','"+
                                 tabMode.getValueAt(r,5).toString().replaceAll("'","`")+"','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','',''","Rekap Harian Tindakan Dokter"); 
             }
-            Sequel.AutoComitTrue();
+            
             Map<String, Object> param = new HashMap<>();                 
-            param.put("namars",var.getnamars());
-            param.put("alamatrs",var.getalamatrs());
-            param.put("kotars",var.getkabupatenrs());
-            param.put("propinsirs",var.getpropinsirs());
-            param.put("kontakrs",var.getkontakrs());
-            param.put("emailrs",var.getemailrs());   
+            param.put("namars",akses.getnamars());
+            param.put("alamatrs",akses.getalamatrs());
+            param.put("kotars",akses.getkabupatenrs());
+            param.put("propinsirs",akses.getpropinsirs());
+            param.put("kontakrs",akses.getkontakrs());
+            param.put("emailrs",akses.getemailrs());   
             param.put("logo",Sequel.cariGambar("select logo from setting")); 
-            Valid.MyReport("rptRHJasaSarana.jrxml","report","::[ Rekap Harian Jasa Sarana Rumah Sakit ]::",
-                "select no, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp9, temp10, temp11, temp12, temp13, temp14 from temporary order by no asc",param);
+            Valid.MyReport("rptRHJasaSarana.jasper","report","::[ Rekap Harian Jasa Sarana Rumah Sakit ]::",param);
         }
         this.setCursor(Cursor.getDefaultCursor());
     }//GEN-LAST:event_BtnPrintActionPerformed
@@ -493,7 +495,7 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
 
 private void btnDokterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDokterActionPerformed
         penjab.isCek();
-        penjab.setSize(internalFrame1.getWidth()-40,internalFrame1.getHeight()-40);
+        penjab.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
         penjab.setLocationRelativeTo(internalFrame1);
         penjab.setAlwaysOnTop(false);
         penjab.setVisible(true);
@@ -818,11 +820,6 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                             "on operasi.no_rawat=reg_periksa.no_rawat and reg_periksa.no_rkm_medis=pasien.no_rkm_medis and operasi.kode_paket=paket_operasi.kode_paket "+
                             "where operasi.tgl_operasi between ? and ? and reg_periksa.kd_pj=? "+
                             " and operasi.akomodasi>0 order by operasi.tgl_operasi,paket_operasi.nm_perawatan  ");
-                       psbagian_rs=koneksi.prepareStatement("select pasien.nm_pasien,paket_operasi.nm_perawatan,operasi.bagian_rs,"+
-                            "operasi.tgl_operasi from operasi inner join reg_periksa inner join pasien inner join paket_operasi "+
-                            "on operasi.no_rawat=reg_periksa.no_rawat and reg_periksa.no_rkm_medis=pasien.no_rkm_medis and operasi.kode_paket=paket_operasi.kode_paket "+
-                            "where operasi.tgl_operasi between ? and ? and reg_periksa.kd_pj=? "+
-                            " and operasi.bagian_rs>0 order by operasi.tgl_operasi,paket_operasi.nm_perawatan  ");
                        psbiayasarpras=koneksi.prepareStatement("select pasien.nm_pasien,paket_operasi.nm_perawatan,operasi.biayasarpras,"+
                             "operasi.tgl_operasi from operasi inner join reg_periksa inner join pasien inner join paket_operasi "+
                             "on operasi.no_rawat=reg_periksa.no_rawat and reg_periksa.no_rkm_medis=pasien.no_rkm_medis and operasi.kode_paket=paket_operasi.kode_paket "+
@@ -847,20 +844,13 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                            rsakomodasi=psakomodasi.executeQuery();
                            rsakomodasi.last();
                            
-                           psbagian_rs.setString(1,Valid.SetTgl(Tgl1.getSelectedItem()+"")+" 00:00:00");
-                           psbagian_rs.setString(2,Valid.SetTgl(Tgl2.getSelectedItem()+"")+" 23:59:59");
-                           psbagian_rs.setString(3,rs.getString("kd_pj"));               
-                           rsbagian_rs=psbagian_rs.executeQuery();
-                           rsbagian_rs.last();
-                           
                            psbiayasarpras.setString(1,Valid.SetTgl(Tgl1.getSelectedItem()+"")+" 00:00:00");
                            psbiayasarpras.setString(2,Valid.SetTgl(Tgl2.getSelectedItem()+"")+" 23:59:59");
                            psbiayasarpras.setString(3,rs.getString("kd_pj"));               
                            rsbiayasarpras=psbiayasarpras.executeQuery();
                            rsbiayasarpras.last();
                            
-                           if((rsbiayaalat.getRow()>0)||(rsbiayasewaok.getRow()>0)||(rsakomodasi.getRow()>0)
-                                   ||(rsbagian_rs.getRow()>0)||(rsbiayasarpras.getRow()>0)){
+                           if((rsbiayaalat.getRow()>0)||(rsbiayasewaok.getRow()>0)||(rsakomodasi.getRow()>0)||(rsbiayasarpras.getRow()>0)){
                                z++; 
                                tabMode.addRow(new Object[]{"","",z+". Operasi/VK ","","",""});   
                            }
@@ -895,15 +885,6 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                                total=total+rsakomodasi.getDouble("akomodasi");
                            }
                            
-                           //N.M.S
-                           rsbagian_rs.beforeFirst();
-                           while(rsbagian_rs.next()){
-                               tabMode.addRow(new Object[]{
-                                   "","","     "+rsbagian_rs.getString("tgl_operasi"),rsbagian_rs.getString("nm_pasien"),
-                                   rsbagian_rs.getString("nm_perawatan")+" (N.M.S)",Valid.SetAngka(rsbagian_rs.getDouble("bagian_rs"))
-                               });      
-                               total=total+rsbagian_rs.getDouble("bagian_rs");
-                           }
                            //Sarpras
                            rsbiayasarpras.beforeFirst();
                            while(rsbiayasarpras.next()){
@@ -933,12 +914,6 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                            }
                            if(psakomodasi!=null){
                                psakomodasi.close();
-                           }
-                           if(rsbagian_rs!=null){
-                               rsbagian_rs.close();
-                           }
-                           if(psbagian_rs!=null){
-                               psbagian_rs.close();
                            }
                            if(rsbiayasarpras!=null){
                                rsbiayasarpras.close();

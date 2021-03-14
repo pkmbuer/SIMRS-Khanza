@@ -7,11 +7,11 @@
     <entry key="PORT">nioxtijcpDaKSUiUiP5FAg==</entry>
     <entry key="USER">kMR3WfAwUK6MbhCyydxa0g==</entry>
     <entry key="PAS">l4nh5eVYrLAER/I2A4b3Tw==</entry>
-    <entry key="CARICEPAT">nonaktif</entry>
+    <entry key="CARICEPAT">aktif</entry>
     <entry key="HYBRIDWEB">webapps</entry>
     <entry key="PORTWEB">80</entry>
     <entry key="ANTRIAN">sender</entry>
-    <entry key="MENUTRANSPARAN">yes</entry>
+    <entry key="MENUTRANSPARAN">no</entry>
     <entry key="URLAPIBPJS">http://dvlp.bpjs-kesehatan.go.id:8081/VClaim-rest</entry>
     <entry key="SECRETKEYAPIBPJS">6vJ72B83D5</entry>
     <entry key="CONSIDAPIBPJS">20257</entry>

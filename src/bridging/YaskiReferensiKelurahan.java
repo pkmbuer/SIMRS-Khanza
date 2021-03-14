@@ -354,7 +354,7 @@ public final class YaskiReferensiKelurahan extends javax.swing.JDialog {
 
     public void tampil(String poli) {
         try {
-            myObj = new FileReader("./cache/kelurahan.json");
+            myObj = new FileReader("./cache/kelurahan.iyem");
             root = mapper.readTree(myObj);
             Valid.tabelKosong(tabMode);
             response = root.path("kelurahan");
@@ -369,11 +369,9 @@ public final class YaskiReferensiKelurahan extends javax.swing.JDialog {
                     }
                 }
             }
+            myObj.close();
         } catch (Exception ex) {
-            System.out.println("Notifikasi : "+ex);
-            if(ex.toString().contains("UnknownHostException")){
-                JOptionPane.showMessageDialog(rootPane,"Koneksi ke Cache terputus...!");
-            }
+            System.out.println("Notifikasi : Data tidak ditemukan..!!");
         }
     }    
 

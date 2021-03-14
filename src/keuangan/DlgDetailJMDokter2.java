@@ -4,7 +4,7 @@ import fungsi.batasInput;
 import fungsi.koneksiDB;
 import fungsi.sekuel;
 import fungsi.validasi;
-import fungsi.var;
+import fungsi.akses;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -19,14 +19,12 @@ import java.io.FileWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.HashMap;
-import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.event.DocumentEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import simrskhanza.DlgPenanggungJawab;
+import simrskhanza.DlgCariCaraBayar;
 
 public class DlgDetailJMDokter2 extends javax.swing.JDialog {
     private final sekuel Sequel=new sekuel();
@@ -34,9 +32,9 @@ public class DlgDetailJMDokter2 extends javax.swing.JDialog {
     private final Jurnal jur=new Jurnal();
     private final Connection koneksi=koneksiDB.condb();
     private final Dimension screen=Toolkit.getDefaultToolkit().getScreenSize();
-    private DlgPenanggungJawab carabayar=new DlgPenanggungJawab(null,false);
+    private DlgCariCaraBayar carabayar=new DlgCariCaraBayar(null,false);
     private int i=0,c=0;
-    private String pilihancarabayar="",tglkeluar="",namaruangan="";    
+    private String pilihancarabayar="",tglkeluar="",namaruangan="",dpjp="";    
     private PreparedStatement psreg,pskamar,pstindakan;
     private ResultSet rsreg,rskamar,rstindakan;
     private double totalsarana=0,totaljm=0,totalbayar=0;   
@@ -52,17 +50,17 @@ public class DlgDetailJMDokter2 extends javax.swing.JDialog {
         initComponents();
         
         tabMode=new DefaultTableModel(null,new Object[]{
-                "Nomor RM","Nama Pasien","Tgl.Masuk","Tgl.Keluar",
-                "Nama Dokter","Dokter Anestesi","Dokter Anak","Kode","Kategori",
+                "No.Rawat","Nomor RM","Nama Pasien","Tgl.Masuk","Tgl.Keluar","DPJP",
+                "Penindak","Dokter Anestesi","Dokter Anak","Kode","Kategori",
                 "Nama Unit","Ruangan","Nama Tindakan","Jml",
                 "J.S.","J.P.","Tarif","Total J.S.",
                 "Total J.P.","Total","Tgl.Trans"
              }){
              @Override public boolean isCellEditable(int rowIndex, int colIndex){return false;}
              Class[] types = new Class[] {
+                java.lang.String.class,java.lang.String.class,java.lang.String.class,java.lang.String.class,
                 java.lang.String.class,java.lang.String.class,java.lang.String.class,
-                java.lang.String.class,java.lang.String.class,java.lang.String.class,
-                java.lang.String.class,java.lang.String.class,java.lang.String.class,
+                java.lang.String.class,java.lang.String.class,java.lang.String.class,java.lang.String.class,
                 java.lang.String.class,java.lang.String.class,java.lang.String.class,
                 java.lang.String.class,java.lang.Double.class,java.lang.Double.class,
                 java.lang.Double.class,java.lang.Double.class,java.lang.Double.class,
@@ -78,38 +76,38 @@ public class DlgDetailJMDokter2 extends javax.swing.JDialog {
         tbDetail.setPreferredScrollableViewportSize(new Dimension(800,800));
         tbDetail.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        for (i = 0; i < 20; i++) {
+        for (i = 0; i < 22; i++) {
             TableColumn column = tbDetail.getColumnModel().getColumn(i);
             if(i==0){
-                column.setPreferredWidth(70);
+                column.setPreferredWidth(105);
             }else if(i==1){
-                column.setPreferredWidth(170);
+                column.setPreferredWidth(70);
             }else if(i==2){
-                column.setPreferredWidth(65);
+                column.setPreferredWidth(170);
             }else if(i==3){
                 column.setPreferredWidth(65);
             }else if(i==4){
-                column.setPreferredWidth(170);
+                column.setPreferredWidth(65);
             }else if(i==5){
                 column.setPreferredWidth(170);
             }else if(i==6){
-            column.setPreferredWidth(170);
+                column.setPreferredWidth(170);
             }else if(i==7){
-                column.setPreferredWidth(40);
+                column.setPreferredWidth(170);
             }else if(i==8){
-                column.setPreferredWidth(100);
+                column.setPreferredWidth(170);
             }else if(i==9){
-                column.setPreferredWidth(100);
+                column.setPreferredWidth(40);
             }else if(i==10){
-                column.setPreferredWidth(150);
+                column.setPreferredWidth(100);
             }else if(i==11){
-                column.setPreferredWidth(180);
+                column.setPreferredWidth(100);
             }else if(i==12){
-                column.setPreferredWidth(30);
+                column.setPreferredWidth(150);
             }else if(i==13){
-                column.setPreferredWidth(90);
+                column.setPreferredWidth(180);
             }else if(i==14){
-                column.setPreferredWidth(90);
+                column.setPreferredWidth(30);
             }else if(i==15){
                 column.setPreferredWidth(90);
             }else if(i==16){
@@ -119,20 +117,36 @@ public class DlgDetailJMDokter2 extends javax.swing.JDialog {
             }else if(i==18){
                 column.setPreferredWidth(90);
             }else if(i==19){
+                column.setPreferredWidth(90);
+            }else if(i==20){
+                column.setPreferredWidth(90);
+            }else if(i==21){
                 column.setPreferredWidth(65);
             }
         }
         tbDetail.setDefaultRenderer(Object.class, new WarnaTable());   
         
         TCari.setDocument(new batasInput((byte)100).getKata(TCari));
-        if(koneksiDB.cariCepat().equals("aktif")){
+        if(koneksiDB.CARICEPAT().equals("aktif")){
             TCari.getDocument().addDocumentListener(new javax.swing.event.DocumentListener(){
                 @Override
-                public void insertUpdate(DocumentEvent e) {prosesCari();}
+                public void insertUpdate(DocumentEvent e) {
+                    if(TCari.getText().length()>2){
+                        prosesCari();
+                    }
+                }
                 @Override
-                public void removeUpdate(DocumentEvent e) {prosesCari();}
+                public void removeUpdate(DocumentEvent e) {
+                    if(TCari.getText().length()>2){
+                        prosesCari();
+                    }
+                }
                 @Override
-                public void changedUpdate(DocumentEvent e) {prosesCari();}
+                public void changedUpdate(DocumentEvent e) {
+                    if(TCari.getText().length()>2){
+                        prosesCari();
+                    }
+                }
             });
         } 
         carabayar.addWindowListener(new WindowListener() {
@@ -205,14 +219,13 @@ public class DlgDetailJMDokter2 extends javax.swing.JDialog {
 
         jPopupMenu1.setName("jPopupMenu1"); // NOI18N
 
-        ppTampilkanSeleksi.setBackground(new java.awt.Color(255, 255, 255));
+        ppTampilkanSeleksi.setBackground(new java.awt.Color(255, 255, 254));
         ppTampilkanSeleksi.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         ppTampilkanSeleksi.setForeground(java.awt.Color.darkGray);
         ppTampilkanSeleksi.setIcon(new javax.swing.ImageIcon(getClass().getResource("/picture/category.png"))); // NOI18N
         ppTampilkanSeleksi.setText("Tampilkan Per Jenis Bayar");
         ppTampilkanSeleksi.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         ppTampilkanSeleksi.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-        ppTampilkanSeleksi.setIconTextGap(5);
         ppTampilkanSeleksi.setName("ppTampilkanSeleksi"); // NOI18N
         ppTampilkanSeleksi.setPreferredSize(new java.awt.Dimension(360, 25));
         ppTampilkanSeleksi.addActionListener(new java.awt.event.ActionListener() {
@@ -231,7 +244,7 @@ public class DlgDetailJMDokter2 extends javax.swing.JDialog {
             }
         });
 
-        internalFrame1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(240, 245, 235)), "::[ Detail J.M Dokter 2 ]::", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(90, 120, 80))); // NOI18N
+        internalFrame1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(240, 245, 235)), "::[ Detail J.M Dokter 2 ]::", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(50,50,50))); // NOI18N
         internalFrame1.setName("internalFrame1"); // NOI18N
         internalFrame1.setLayout(new java.awt.BorderLayout(1, 1));
 
@@ -244,7 +257,6 @@ public class DlgDetailJMDokter2 extends javax.swing.JDialog {
         label11.setPreferredSize(new java.awt.Dimension(85, 23));
         panelisi4.add(label11);
 
-        Tgl1.setEditable(false);
         Tgl1.setDisplayFormat("dd-MM-yyyy");
         Tgl1.setName("Tgl1"); // NOI18N
         Tgl1.setPreferredSize(new java.awt.Dimension(95, 23));
@@ -261,7 +273,6 @@ public class DlgDetailJMDokter2 extends javax.swing.JDialog {
         label18.setPreferredSize(new java.awt.Dimension(30, 23));
         panelisi4.add(label18);
 
-        Tgl2.setEditable(false);
         Tgl2.setDisplayFormat("dd-MM-yyyy");
         Tgl2.setName("Tgl2"); // NOI18N
         Tgl2.setPreferredSize(new java.awt.Dimension(95, 23));
@@ -343,7 +354,7 @@ public class DlgDetailJMDokter2 extends javax.swing.JDialog {
         chkLaborat.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         chkLaborat.setName("chkLaborat"); // NOI18N
         chkLaborat.setOpaque(false);
-        chkLaborat.setPreferredSize(new java.awt.Dimension(95, 30));
+        chkLaborat.setPreferredSize(new java.awt.Dimension(100, 30));
         chkLaborat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 chkLaboratActionPerformed(evt);
@@ -433,6 +444,7 @@ public class DlgDetailJMDokter2 extends javax.swing.JDialog {
 
         internalFrame1.add(panelisi1, java.awt.BorderLayout.PAGE_END);
 
+        scrollPane1.setComponentPopupMenu(jPopupMenu1);
         scrollPane1.setName("scrollPane1"); // NOI18N
         scrollPane1.setOpaque(true);
 
@@ -448,6 +460,7 @@ public class DlgDetailJMDokter2 extends javax.swing.JDialog {
             }
         ));
         tbDetail.setToolTipText("");
+        tbDetail.setComponentPopupMenu(jPopupMenu1);
         tbDetail.setName("tbDetail"); // NOI18N
         scrollPane1.setViewportView(tbDetail);
 
@@ -469,72 +482,74 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
             File g = new File("file2.css");            
             BufferedWriter bg = new BufferedWriter(new FileWriter(g));
             bg.write(
-                    ".isi td{border-right: 1px solid #edf2e8;font: 11px tahoma;height:12px;border-bottom: 1px solid #edf2e8;background: #ffffff;color:#5a7850;}"+
-                    ".isi2 td{font: 11px tahoma;height:12px;background: #ffffff;color:#5a7850;}"+                    
-                    ".isi3 td{border-right: 1px solid #edf2e8;font: 11px tahoma;height:12px;border-top: 1px solid #edf2e8;background: #ffffff;color:#5a7850;}"+
-                    ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #edf2e8;background: #ffffff;color:#5a7850;}"
+                    ".isi td{border-right: 1px solid #e2e7dd;font: 11px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                    ".isi2 td{font: 11px tahoma;height:12px;background: #ffffff;color:#323232;}"+                    
+                    ".isi3 td{border-right: 1px solid #e2e7dd;font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                    ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"
             );
             bg.close();
             
             File f;            
             BufferedWriter bw; 
             
-            pilihan = (String)JOptionPane.showInputDialog(null,"Silahkan pilih laporan..!","Laporan Penjualan",JOptionPane.QUESTION_MESSAGE,null,new Object[]{"Laporan 1 (HTML)","Laporan 2 (HTML)","Laporan 3 (WPS)","Laporan 4 (WPS)","Laporan 5 (CSV)","Laporan 6 (CSV)"},"Laporan 1");
+            pilihan = (String)JOptionPane.showInputDialog(null,"Silahkan pilih laporan..!","Laporan Jasa Medis",JOptionPane.QUESTION_MESSAGE,null,new Object[]{"Laporan 1 (HTML)","Laporan 2 (HTML)","Laporan 3 (WPS)","Laporan 4 (WPS)","Laporan 5 (CSV)","Laporan 6 (CSV)"},"Laporan 1 (HTML)");
             switch (pilihan) {
                 case "Laporan 1 (HTML)":
                         htmlContent = new StringBuilder();
                         htmlContent.append(                             
                             "<tr class='isi'>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Nomor RM</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Nama Pasien</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>&nbsp;&nbsp;Tgl.Masuk&nbsp;&nbsp;</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>&nbsp;&nbsp;Tgl.Keluar&nbsp;&nbsp;</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Nama Dokter</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Dokter Anestesi</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Dokter Anak</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Kode</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='6%'>Kategori</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Nama Unit</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='9%'>Ruangan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='12%'>Nama Tindakan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Frekuensi (Jumlah)</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Jasa Sarana</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Jasa Pelayanan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Tarif</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Total Jasa Sarana</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Total Jasa Pelayanan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Total</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Tgl.Transaksi</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>No.Rawat</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Nomor RM</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='8%'>Nama Pasien</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>&nbsp;&nbsp;Tgl.Masuk&nbsp;&nbsp;</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>&nbsp;&nbsp;Tgl.Keluar&nbsp;&nbsp;</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='8%'>DPJP</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='8%'>Penindak</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='7%'>Dokter Anestesi</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='7%'>Dokter Anak</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Kode</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='6%'>Kategori</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Nama Unit</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='9%'>Ruangan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='12%'>Nama Tindakan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Frekuensi (Jumlah)</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Jasa Sarana</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Jasa Pelayanan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Tarif</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Total Jasa Sarana</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Total Jasa Pelayanan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Total</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Tgl.Transaksi</td>"+
                             "</tr>"
                         ); 
                         for(i=0;i<tabMode.getRowCount();i++){  
                             try {
-                                js=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,13).toString()));
+                                js=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,15).toString()));
                             } catch (Exception e) {
                                 js="";
                             }
                             try {
-                                jm=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,14).toString()));
+                                jm=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,16).toString()));
                             } catch (Exception e) {
                                 jm="";
                             }
                             try {
-                                tarif=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,15).toString()));
+                                tarif=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,17).toString()));
                             } catch (Exception e) {
                                 tarif="";
                             }
                             try {
-                                totalsaranas=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,16).toString()));
+                                totalsaranas=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,18).toString()));
                             } catch (Exception e) {
                                 totalsaranas="";
                             }
                             try {
-                                totaljms=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,17).toString()));
+                                totaljms=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,19).toString()));
                             } catch (Exception e) {
                                 totaljms="";
                             }
                             try {
-                                totalbayars=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,18).toString()));
+                                totalbayars=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,20).toString()));
                             } catch (Exception e) {
                                 totalbayars="";
                             }
@@ -543,29 +558,31 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                 "<tr class='isi'>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,0).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,1).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,2).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,2).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top' align='center'>"+tabMode.getValueAt(i,3).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top'>"+tabMode.getValueAt(i,4).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,4).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,5).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,6).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,7).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,7).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,8).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top'>"+tabMode.getValueAt(i,9).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,9).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,10).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,11).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,12).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,12).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,13).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,14).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top' align='right'>"+js+"</td>"+
                                     "<td valign='top' align='right'>"+jm+"</td>"+
                                     "<td valign='top' align='right'>"+tarif+"</td>"+
                                     "<td valign='top' align='right'>"+totalsaranas+"</td>"+
                                     "<td valign='top' align='right'>"+totaljms+"</td>"+
                                     "<td valign='top' align='right'>"+totalbayars+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,19).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,21).toString().replaceAll("'","`")+"</td>"+
                                 "</tr>"
                             ); 
                         }            
 
-                        f = new File("DetailJMDokter2.html");            
+                        f = new File("DetailJMDokter1.html");            
                         bw = new BufferedWriter(new FileWriter(f));            
                         bw.write("<html>"+
                                     "<head><link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" /></head>"+
@@ -573,9 +590,9 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                         "<table width='2000px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
                                             "<tr class='isi2'>"+
                                                 "<td valign='top' align='center'>"+
-                                                    "<font size='4' face='Tahoma'>"+var.getnamars()+"</font><br>"+
-                                                    var.getalamatrs()+", "+var.getkabupatenrs()+", "+var.getpropinsirs()+"<br>"+
-                                                    var.getkontakrs()+", E-mail : "+var.getemailrs()+"<br><br>"+
+                                                    "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                                    akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                                    akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
                                                     "<font size='2' face='Tahoma'>DETAIL JM DOKTER PERIODE "+Tgl1.getSelectedItem()+" s.d. "+Tgl2.getSelectedItem()+"<br><br></font>"+        
                                                 "</td>"+
                                            "</tr>"+
@@ -594,56 +611,59 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                         htmlContent = new StringBuilder();
                         htmlContent.append(                             
                             "<tr class='isi'>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Nomor RM</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Nama Pasien</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>&nbsp;&nbsp;Tgl.Masuk&nbsp;&nbsp;</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>&nbsp;&nbsp;Tgl.Keluar&nbsp;&nbsp;</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Nama Dokter</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Dokter Anestesi</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Dokter Anak</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Kode</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='6%'>Kategori</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Nama Unit</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='9%'>Ruangan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='12%'>Nama Tindakan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Frekuensi (Jumlah)</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Jasa Sarana</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Jasa Pelayanan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Tarif</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Total Jasa Sarana</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Total Jasa Pelayanan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Total</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Tgl.Transaksi</td>"+
+                                "<tr class='isi'>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>No.Rawat</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Nomor RM</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='8%'>Nama Pasien</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>&nbsp;&nbsp;Tgl.Masuk&nbsp;&nbsp;</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>&nbsp;&nbsp;Tgl.Keluar&nbsp;&nbsp;</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='8%'>DPJP</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='8%'>Penindak</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='7%'>Dokter Anestesi</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='7%'>Dokter Anak</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Kode</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='6%'>Kategori</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Nama Unit</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='9%'>Ruangan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='12%'>Nama Tindakan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Frekuensi (Jumlah)</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Jasa Sarana</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Jasa Pelayanan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Tarif</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Total Jasa Sarana</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Total Jasa Pelayanan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Total</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Tgl.Transaksi</td>"+
                             "</tr>"
                         ); 
                         for(i=0;i<tabMode.getRowCount();i++){  
                             try {
-                                js=tabMode.getValueAt(i,13).toString();
+                                js=tabMode.getValueAt(i,15).toString();
                             } catch (Exception e) {
                                 js="";
                             }
                             try {
-                                jm=tabMode.getValueAt(i,14).toString();
+                                jm=tabMode.getValueAt(i,16).toString();
                             } catch (Exception e) {
                                 jm="";
                             }
                             try {
-                                tarif=tabMode.getValueAt(i,15).toString();
+                                tarif=tabMode.getValueAt(i,17).toString();
                             } catch (Exception e) {
                                 tarif="";
                             }
                             try {
-                                totalsaranas=tabMode.getValueAt(i,16).toString();
+                                totalsaranas=tabMode.getValueAt(i,18).toString();
                             } catch (Exception e) {
                                 totalsaranas="";
                             }
                             try {
-                                totaljms=tabMode.getValueAt(i,17).toString();
+                                totaljms=tabMode.getValueAt(i,19).toString();
                             } catch (Exception e) {
                                 totaljms="";
                             }
                             try {
-                                totalbayars=tabMode.getValueAt(i,18).toString();
+                                totalbayars=tabMode.getValueAt(i,20).toString();
                             } catch (Exception e) {
                                 totalbayars="";
                             }
@@ -652,24 +672,26 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                 "<tr class='isi'>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,0).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,1).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,2).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,2).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top' align='center'>"+tabMode.getValueAt(i,3).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top'>"+tabMode.getValueAt(i,4).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,4).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,5).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,6).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,7).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,7).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,8).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top'>"+tabMode.getValueAt(i,9).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,9).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,10).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,11).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,12).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,12).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,13).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,14).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top' align='right'>"+js+"</td>"+
                                     "<td valign='top' align='right'>"+jm+"</td>"+
                                     "<td valign='top' align='right'>"+tarif+"</td>"+
                                     "<td valign='top' align='right'>"+totalsaranas+"</td>"+
                                     "<td valign='top' align='right'>"+totaljms+"</td>"+
                                     "<td valign='top' align='right'>"+totalbayars+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,19).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,21).toString().replaceAll("'","`")+"</td>"+
                                 "</tr>"
                             ); 
                         }            
@@ -682,9 +704,9 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                         "<table width='2000px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
                                             "<tr class='isi2'>"+
                                                 "<td valign='top' align='center'>"+
-                                                    "<font size='4' face='Tahoma'>"+var.getnamars()+"</font><br>"+
-                                                    var.getalamatrs()+", "+var.getkabupatenrs()+", "+var.getpropinsirs()+"<br>"+
-                                                    var.getkontakrs()+", E-mail : "+var.getemailrs()+"<br><br>"+
+                                                    "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                                    akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                                    akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
                                                     "<font size='2' face='Tahoma'>DETAIL JM DOKTER PERIODE "+Tgl1.getSelectedItem()+" s.d. "+Tgl2.getSelectedItem()+"<br><br></font>"+        
                                                 "</td>"+
                                            "</tr>"+
@@ -703,56 +725,58 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                         htmlContent = new StringBuilder();
                         htmlContent.append(                             
                             "<tr class='isi'>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Nomor RM</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Nama Pasien</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>&nbsp;&nbsp;Tgl.Masuk&nbsp;&nbsp;</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>&nbsp;&nbsp;Tgl.Keluar&nbsp;&nbsp;</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Nama Dokter</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Dokter Anestesi</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Dokter Anak</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Kode</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='6%'>Kategori</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Nama Unit</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='9%'>Ruangan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='12%'>Nama Tindakan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Frekuensi (Jumlah)</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Jasa Sarana</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Jasa Pelayanan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Tarif</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Total Jasa Sarana</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Total Jasa Pelayanan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Total</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Tgl.Transaksi</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>No.Rawat</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Nomor RM</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='8%'>Nama Pasien</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>&nbsp;&nbsp;Tgl.Masuk&nbsp;&nbsp;</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>&nbsp;&nbsp;Tgl.Keluar&nbsp;&nbsp;</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='8%'>DPJP</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='8%'>Penindak</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='7%'>Dokter Anestesi</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='7%'>Dokter Anak</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Kode</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='6%'>Kategori</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Nama Unit</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='9%'>Ruangan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='12%'>Nama Tindakan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Frekuensi (Jumlah)</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Jasa Sarana</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Jasa Pelayanan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Tarif</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Total Jasa Sarana</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Total Jasa Pelayanan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Total</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Tgl.Transaksi</td>"+
                             "</tr>"
                         ); 
                         for(i=0;i<tabMode.getRowCount();i++){  
                             try {
-                                js=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,13).toString()));
+                                js=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,15).toString()));
                             } catch (Exception e) {
                                 js="";
                             }
                             try {
-                                jm=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,14).toString()));
+                                jm=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,16).toString()));
                             } catch (Exception e) {
                                 jm="";
                             }
                             try {
-                                tarif=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,15).toString()));
+                                tarif=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,17).toString()));
                             } catch (Exception e) {
                                 tarif="";
                             }
                             try {
-                                totalsaranas=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,16).toString()));
+                                totalsaranas=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,18).toString()));
                             } catch (Exception e) {
                                 totalsaranas="";
                             }
                             try {
-                                totaljms=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,17).toString()));
+                                totaljms=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,19).toString()));
                             } catch (Exception e) {
                                 totaljms="";
                             }
                             try {
-                                totalbayars=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,18).toString()));
+                                totalbayars=Valid.SetAngka(Double.parseDouble(tabMode.getValueAt(i,20).toString()));
                             } catch (Exception e) {
                                 totalbayars="";
                             }
@@ -761,29 +785,31 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                 "<tr class='isi'>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,0).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,1).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,2).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,2).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top' align='center'>"+tabMode.getValueAt(i,3).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top'>"+tabMode.getValueAt(i,4).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,4).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,5).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,6).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,7).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,7).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,8).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top'>"+tabMode.getValueAt(i,9).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,9).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,10).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,11).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,12).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,12).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,13).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,14).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top' align='right'>"+js+"</td>"+
                                     "<td valign='top' align='right'>"+jm+"</td>"+
                                     "<td valign='top' align='right'>"+tarif+"</td>"+
                                     "<td valign='top' align='right'>"+totalsaranas+"</td>"+
                                     "<td valign='top' align='right'>"+totaljms+"</td>"+
                                     "<td valign='top' align='right'>"+totalbayars+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,19).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,21).toString().replaceAll("'","`")+"</td>"+
                                 "</tr>"
                             ); 
                         }            
 
-                        f = new File("DetailJMDokter2.wps");            
+                        f = new File("DetailJMDokter.wps");            
                         bw = new BufferedWriter(new FileWriter(f));            
                         bw.write("<html>"+
                                     "<head><link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" /></head>"+
@@ -791,9 +817,9 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                         "<table width='2000px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
                                             "<tr class='isi2'>"+
                                                 "<td valign='top' align='center'>"+
-                                                    "<font size='4' face='Tahoma'>"+var.getnamars()+"</font><br>"+
-                                                    var.getalamatrs()+", "+var.getkabupatenrs()+", "+var.getpropinsirs()+"<br>"+
-                                                    var.getkontakrs()+", E-mail : "+var.getemailrs()+"<br><br>"+
+                                                    "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                                    akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                                    akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
                                                     "<font size='2' face='Tahoma'>DETAIL JM DOKTER PERIODE "+Tgl1.getSelectedItem()+" s.d. "+Tgl2.getSelectedItem()+"<br><br></font>"+        
                                                 "</td>"+
                                            "</tr>"+
@@ -812,56 +838,58 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                         htmlContent = new StringBuilder();
                         htmlContent.append(                             
                             "<tr class='isi'>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Nomor RM</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Nama Pasien</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>&nbsp;&nbsp;Tgl.Masuk&nbsp;&nbsp;</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>&nbsp;&nbsp;Tgl.Keluar&nbsp;&nbsp;</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Nama Dokter</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Dokter Anestesi</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='10%'>Dokter Anak</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Kode</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='6%'>Kategori</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Nama Unit</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='9%'>Ruangan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='12%'>Nama Tindakan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Frekuensi (Jumlah)</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Jasa Sarana</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Jasa Pelayanan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Tarif</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Total Jasa Sarana</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Total Jasa Pelayanan</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='3%'>Total</td>"+
-                                "<td valign='middle' bgcolor='#f7fcf2' align='center' width='2%'>Tgl.Transaksi</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>No.Rawat</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Nomor RM</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='8%'>Nama Pasien</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>&nbsp;&nbsp;Tgl.Masuk&nbsp;&nbsp;</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>&nbsp;&nbsp;Tgl.Keluar&nbsp;&nbsp;</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='8%'>DPJP</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='8%'>Penindak</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='7%'>Dokter Anestesi</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='7%'>Dokter Anak</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Kode</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='6%'>Kategori</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Nama Unit</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='9%'>Ruangan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='12%'>Nama Tindakan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Frekuensi (Jumlah)</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Jasa Sarana</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Jasa Pelayanan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Tarif</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Total Jasa Sarana</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Total Jasa Pelayanan</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='3%'>Total</td>"+
+                                "<td valign='middle' bgcolor='#FFFAF8' align='center' width='2%'>Tgl.Transaksi</td>"+
                             "</tr>"
                         ); 
                         for(i=0;i<tabMode.getRowCount();i++){  
                             try {
-                                js=tabMode.getValueAt(i,13).toString();
+                                js=tabMode.getValueAt(i,15).toString();
                             } catch (Exception e) {
                                 js="";
                             }
                             try {
-                                jm=tabMode.getValueAt(i,14).toString();
+                                jm=tabMode.getValueAt(i,16).toString();
                             } catch (Exception e) {
                                 jm="";
                             }
                             try {
-                                tarif=tabMode.getValueAt(i,15).toString();
+                                tarif=tabMode.getValueAt(i,17).toString();
                             } catch (Exception e) {
                                 tarif="";
                             }
                             try {
-                                totalsaranas=tabMode.getValueAt(i,16).toString();
+                                totalsaranas=tabMode.getValueAt(i,18).toString();
                             } catch (Exception e) {
                                 totalsaranas="";
                             }
                             try {
-                                totaljms=tabMode.getValueAt(i,17).toString();
+                                totaljms=tabMode.getValueAt(i,19).toString();
                             } catch (Exception e) {
                                 totaljms="";
                             }
                             try {
-                                totalbayars=tabMode.getValueAt(i,18).toString();
+                                totalbayars=tabMode.getValueAt(i,20).toString();
                             } catch (Exception e) {
                                 totalbayars="";
                             }
@@ -870,24 +898,26 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                 "<tr class='isi'>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,0).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,1).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,2).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,2).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top' align='center'>"+tabMode.getValueAt(i,3).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top'>"+tabMode.getValueAt(i,4).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,4).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,5).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,6).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,7).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,7).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,8).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top'>"+tabMode.getValueAt(i,9).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,9).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,10).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top'>"+tabMode.getValueAt(i,11).toString().replaceAll("'","`")+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,12).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,12).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top'>"+tabMode.getValueAt(i,13).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,14).toString().replaceAll("'","`")+"</td>"+
                                     "<td valign='top' align='right'>"+js+"</td>"+
                                     "<td valign='top' align='right'>"+jm+"</td>"+
                                     "<td valign='top' align='right'>"+tarif+"</td>"+
                                     "<td valign='top' align='right'>"+totalsaranas+"</td>"+
                                     "<td valign='top' align='right'>"+totaljms+"</td>"+
                                     "<td valign='top' align='right'>"+totalbayars+"</td>"+
-                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,19).toString().replaceAll("'","`")+"</td>"+
+                                    "<td valign='top' align='center'>"+tabMode.getValueAt(i,21).toString().replaceAll("'","`")+"</td>"+
                                 "</tr>"
                             ); 
                         }            
@@ -900,9 +930,9 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                         "<table width='2000px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
                                             "<tr class='isi2'>"+
                                                 "<td valign='top' align='center'>"+
-                                                    "<font size='4' face='Tahoma'>"+var.getnamars()+"</font><br>"+
-                                                    var.getalamatrs()+", "+var.getkabupatenrs()+", "+var.getpropinsirs()+"<br>"+
-                                                    var.getkontakrs()+", E-mail : "+var.getemailrs()+"<br><br>"+
+                                                    "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                                    akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                                    akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
                                                     "<font size='2' face='Tahoma'>DETAIL JM DOKTER PERIODE "+Tgl1.getSelectedItem()+" s.d. "+Tgl2.getSelectedItem()+"<br><br></font>"+        
                                                 "</td>"+
                                            "</tr>"+
@@ -920,46 +950,46 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                 case "Laporan 5 (CSV)":
                         htmlContent = new StringBuilder();
                         htmlContent.append(                             
-                            "\"Nomor RM\";\"Nama Pasien\";\"Tgl.Masuk\";\"Tgl.Keluar\";\"Nama Dokter\";\"Dokter Anestesi\";\"Dokter Anak\";\"Kode\";\"Kategori\";\"Nama Unit\";\"Ruangan\";\"Nama Tindakan\";\"Frekuensi (Jumlah)\";\"Jasa Sarana\";\"Jasa Pelayanan\";\"Tarif\";\"Total Jasa Sarana\";\"Total Jasa Pelayanan\";\"Total\";\"Tgl.Transaksi\"\n"
+                            "\"No.Rawat\";\"Nomor RM\";\"Nama Pasien\";\"Tgl.Masuk\";\"Tgl.Keluar\";\"DPJP\";\"Penindak\";\"Dokter Anestesi\";\"Dokter Anak\";\"Kode\";\"Kategori\";\"Nama Unit\";\"Ruangan\";\"Nama Tindakan\";\"Frekuensi (Jumlah)\";\"Jasa Sarana\";\"Jasa Pelayanan\";\"Tarif\";\"Total Jasa Sarana\";\"Total Jasa Pelayanan\";\"Total\";\"Tgl.Transaksi\"\n"
                         ); 
                         for(i=0;i<tabMode.getRowCount();i++){  
                             try {
-                                js=tabMode.getValueAt(i,13).toString();
+                                js=tabMode.getValueAt(i,15).toString();
                             } catch (Exception e) {
                                 js="";
                             }
                             try {
-                                jm=tabMode.getValueAt(i,14).toString();
+                                jm=tabMode.getValueAt(i,16).toString();
                             } catch (Exception e) {
                                 jm="";
                             }
                             try {
-                                tarif=tabMode.getValueAt(i,15).toString();
+                                tarif=tabMode.getValueAt(i,17).toString();
                             } catch (Exception e) {
                                 tarif="";
                             }
                             try {
-                                totalsaranas=tabMode.getValueAt(i,16).toString();
+                                totalsaranas=tabMode.getValueAt(i,18).toString();
                             } catch (Exception e) {
                                 totalsaranas="";
                             }
                             try {
-                                totaljms=tabMode.getValueAt(i,17).toString();
+                                totaljms=tabMode.getValueAt(i,19).toString();
                             } catch (Exception e) {
                                 totaljms="";
                             }
                             try {
-                                totalbayars=tabMode.getValueAt(i,18).toString();
+                                totalbayars=tabMode.getValueAt(i,20).toString();
                             } catch (Exception e) {
                                 totalbayars="";
                             }
 
                             htmlContent.append(                             
-                                "\""+tabMode.getValueAt(i,0).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,1).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,2).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,3).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,4).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,5).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,6).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,7).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,8).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,9).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,10).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,11).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,12).toString().replaceAll("'","`")+"\";\""+js+"\";\""+jm+"\";\""+tarif+"\";\""+totalsaranas+"\";\""+totaljms+"\";\""+totalbayars+"\";\""+tabMode.getValueAt(i,19).toString().replaceAll("'","`")+"\"\n"
+                                "\""+tabMode.getValueAt(i,0).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,1).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,2).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,3).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,4).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,5).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,6).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,7).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,8).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,9).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,10).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,11).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,12).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,13).toString().replaceAll("'","`")+"\";\""+tabMode.getValueAt(i,14).toString().replaceAll("'","`")+"\";\""+js+"\";\""+jm+"\";\""+tarif+"\";\""+totalsaranas+"\";\""+totaljms+"\";\""+totalbayars+"\";\""+tabMode.getValueAt(i,21).toString().replaceAll("'","`")+"\"\n"
                             ); 
                         }            
 
-                        f = new File("DetailJMDokter2.csv");            
+                        f = new File("DetailJMDokter.csv");            
                         bw = new BufferedWriter(new FileWriter(f));            
                         bw.write(htmlContent.toString());
 
@@ -969,42 +999,42 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                 case "Laporan 6 (CSV)":
                         htmlContent = new StringBuilder();
                         htmlContent.append(                             
-                            "Nomor RM;Nama Pasien;Tgl.Masuk;Tgl.Keluar;Nama Dokter;Dokter Anestesi;Dokter Anak;Kode;Kategori;Nama Unit;Ruangan;Nama Tindakan;Frekuensi (Jumlah);Jasa Sarana;Jasa Pelayanan;Tarif;Total Jasa Sarana;Total Jasa Pelayanan;Total;Tgl.Transaksi\n"
+                            "No.Rawat;Nomor RM;Nama Pasien;Tgl.Masuk;Tgl.Keluar;DPJP;Penindak;Dokter Anestesi;Dokter Anak;Kode;Kategori;Nama Unit;Ruangan;Nama Tindakan;Frekuensi (Jumlah);Jasa Sarana;Jasa Pelayanan;Tarif;Total Jasa Sarana;Total Jasa Pelayanan;Total;Tgl.Transaksi\n"
                         ); 
                         for(i=0;i<tabMode.getRowCount();i++){  
                             try {
-                                js=tabMode.getValueAt(i,13).toString();
+                                js=tabMode.getValueAt(i,15).toString();
                             } catch (Exception e) {
                                 js="";
                             }
                             try {
-                                jm=tabMode.getValueAt(i,14).toString();
+                                jm=tabMode.getValueAt(i,16).toString();
                             } catch (Exception e) {
                                 jm="";
                             }
                             try {
-                                tarif=tabMode.getValueAt(i,15).toString();
+                                tarif=tabMode.getValueAt(i,17).toString();
                             } catch (Exception e) {
                                 tarif="";
                             }
                             try {
-                                totalsaranas=tabMode.getValueAt(i,16).toString();
+                                totalsaranas=tabMode.getValueAt(i,18).toString();
                             } catch (Exception e) {
                                 totalsaranas="";
                             }
                             try {
-                                totaljms=tabMode.getValueAt(i,17).toString();
+                                totaljms=tabMode.getValueAt(i,19).toString();
                             } catch (Exception e) {
                                 totaljms="";
                             }
                             try {
-                                totalbayars=tabMode.getValueAt(i,18).toString();
+                                totalbayars=tabMode.getValueAt(i,20).toString();
                             } catch (Exception e) {
                                 totalbayars="";
                             }
 
                             htmlContent.append(                             
-                                ""+tabMode.getValueAt(i,0).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,1).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,2).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,3).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,4).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,5).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,6).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,7).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,8).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,9).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,10).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,11).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,12).toString().replaceAll("'","`")+";"+js+";"+jm+";"+tarif+";"+totalsaranas+";"+totaljms+";"+totalbayars+";"+tabMode.getValueAt(i,19).toString().replaceAll("'","`")+"\n"
+                                ""+tabMode.getValueAt(i,0).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,1).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,2).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,3).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,4).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,5).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,6).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,7).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,8).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,9).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,10).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,11).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,12).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,13).toString().replaceAll("'","`")+";"+tabMode.getValueAt(i,14).toString().replaceAll("'","`")+";"+js+";"+jm+";"+tarif+";"+totalsaranas+";"+totaljms+";"+totalbayars+";"+tabMode.getValueAt(i,21).toString().replaceAll("'","`")+"\n"
                             ); 
                         }            
 
@@ -1103,7 +1133,7 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
 
     private void ppTampilkanSeleksiBtnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ppTampilkanSeleksiBtnPrintActionPerformed
         carabayar.isCek();
-        carabayar.setSize(internalFrame1.getWidth()-40,internalFrame1.getHeight()-40);
+        carabayar.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
         carabayar.setLocationRelativeTo(internalFrame1);
         carabayar.setVisible(true);
     }//GEN-LAST:event_ppTampilkanSeleksiBtnPrintActionPerformed
@@ -1170,13 +1200,15 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
         try {
             Valid.tabelKosong(tabMode); 
             psreg=koneksi.prepareStatement(
-                    "select reg_periksa.no_rawat,reg_periksa.tgl_registrasi,reg_periksa.no_rkm_medis,"+
+                    "select reg_periksa.no_rawat,reg_periksa.tgl_registrasi,reg_periksa.no_rkm_medis,dokter.nm_dokter,"+
                     "pasien.nm_pasien,penjab.png_jawab,reg_periksa.kd_poli,poliklinik.nm_poli,reg_periksa.status_lanjut,reg_periksa.kd_pj "+
                     "from reg_periksa inner join pasien inner join poliklinik inner join penjab "+
-                    "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis "+
+                    "inner join dokter on reg_periksa.no_rkm_medis=pasien.no_rkm_medis "+
+                    "and reg_periksa.kd_dokter=dokter.kd_dokter "+
                     "and reg_periksa.kd_pj=penjab.kd_pj and reg_periksa.kd_poli=poliklinik.kd_poli "+
                     "where reg_periksa.tgl_registrasi between ? and ? and reg_periksa.kd_pj like ? and reg_periksa.no_rkm_medis like ? or "+
                     "reg_periksa.tgl_registrasi between ? and ? and reg_periksa.kd_pj like ? and pasien.nm_pasien like ? or "+
+                    "reg_periksa.tgl_registrasi between ? and ? and reg_periksa.kd_pj like ? and dokter.nm_dokter like ? or "+
                     "reg_periksa.tgl_registrasi between ? and ? and reg_periksa.kd_pj like ? and penjab.png_jawab like ? or "+
                     "reg_periksa.tgl_registrasi between ? and ? and reg_periksa.kd_pj like ? and poliklinik.nm_poli like ? order by reg_periksa.tgl_registrasi");
             try {
@@ -1196,14 +1228,20 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                 psreg.setString(14,Valid.SetTgl(Tgl2.getSelectedItem()+""));
                 psreg.setString(15,"%"+pilihancarabayar+"%");
                 psreg.setString(16,"%"+TCari.getText().trim()+"%");
+                psreg.setString(17,Valid.SetTgl(Tgl1.getSelectedItem()+""));
+                psreg.setString(18,Valid.SetTgl(Tgl2.getSelectedItem()+""));
+                psreg.setString(19,"%"+pilihancarabayar+"%");
+                psreg.setString(20,"%"+TCari.getText().trim()+"%");
                 rsreg=psreg.executeQuery();
                 totalsarana=0;totaljm=0;totalbayar=0;
                 while(rsreg.next()){
                     namaruangan="";
                     tglkeluar="";
+                    dpjp="";
                     if(rsreg.getString("status_lanjut").equals("Ralan")){
                         namaruangan=rsreg.getString("nm_poli");
                         tglkeluar=rsreg.getString("tgl_registrasi");
+                        dpjp=rsreg.getString("nm_dokter");
                     }else if(rsreg.getString("status_lanjut").equals("Ranap")){
                         pskamar=koneksi.prepareStatement(
                             "select kamar_inap.kd_kamar,bangsal.nm_bangsal,"+
@@ -1228,6 +1266,10 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                                 pskamar.close();
                             } 
                         }
+                        dpjp=Sequel.cariIsi("select kd_dokter from dpjp_ranap where no_rawat=?",rsreg.getString("no_rawat"));
+                        if(dpjp.equals("")){
+                            dpjp=rsreg.getString("nm_dokter");
+                        }
                     }
                     if(chkRalan.isSelected()==true){
                         //tindakan dr
@@ -1249,10 +1291,10 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                                 totaljm=totaljm+rstindakan.getDouble("totaljm");
                                 totalbayar=totalbayar+rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana");
                                 tabMode.addRow(new Object[]{
-                                    rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
+                                    rsreg.getString("no_rawat"),rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
                                     rsreg.getString("tgl_registrasi"),tglkeluar,
-                                    rstindakan.getString("nm_dokter"),"","",
-                                    rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),"Poli",
+                                    dpjp,rstindakan.getString("nm_dokter"),"","",
+                                    rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),"Ralan",
                                     namaruangan,rstindakan.getString("nm_perawatan"),
                                     rstindakan.getString("jumlah"),rstindakan.getDouble("sarana"),
                                     rstindakan.getDouble("tarif_tindakandr"),
@@ -1292,10 +1334,10 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                                 totaljm=totaljm+rstindakan.getDouble("totaljm");
                                 totalbayar=totalbayar+rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana");
                                 tabMode.addRow(new Object[]{
-                                    rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
+                                    rsreg.getString("no_rawat"),rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
                                     rsreg.getString("tgl_registrasi"),tglkeluar,
-                                    rstindakan.getString("nm_dokter"),"","",
-                                    rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),"Poli",
+                                    dpjp,rstindakan.getString("nm_dokter"),"","",
+                                    rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),"Ralan",
                                     namaruangan,rstindakan.getString("nm_perawatan"),
                                     rstindakan.getString("jumlah"),rstindakan.getDouble("sarana"),
                                     rstindakan.getDouble("tarif_tindakandr"),
@@ -1307,6 +1349,49 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                             }                           
                         } catch (Exception e) {
                             System.out.println("Notif Ralan dr pr : "+e);
+                        } finally{
+                            if(rstindakan!=null){
+                                rstindakan.close();
+                            }
+                            if(pstindakan!=null){
+                                pstindakan.close();
+                            }
+                        }
+                        
+                        //tindakan perawat
+                        pstindakan=koneksi.prepareStatement(
+                                "select jns_perawatan.nm_perawatan,petugas.nama, "+
+                                "rawat_jl_pr.tgl_perawatan,count(rawat_jl_pr.no_rawat) as jumlah, "+
+                                "rawat_jl_pr.tarif_tindakanpr,sum(rawat_jl_pr.tarif_tindakanpr) as totaljm,"+
+                                "(rawat_jl_pr.material+rawat_jl_pr.bhp+rawat_jl_pr.kso+rawat_jl_pr.menejemen) as sarana,"+
+                                "sum(rawat_jl_pr.material+rawat_jl_pr.bhp+rawat_jl_pr.kso+rawat_jl_pr.menejemen) as totalsarana "+
+                                "from rawat_jl_pr inner join jns_perawatan inner join petugas on "+
+                                "rawat_jl_pr.kd_jenis_prw=jns_perawatan.kd_jenis_prw and "+
+                                "rawat_jl_pr.nip=petugas.nip where rawat_jl_pr.no_rawat=? "+
+                                "group by rawat_jl_pr.kd_jenis_prw,rawat_jl_pr.tgl_perawatan");
+                        try {
+                            pstindakan.setString(1,rsreg.getString("no_rawat"));
+                            rstindakan=pstindakan.executeQuery();
+                            while(rstindakan.next()){
+                                totalsarana=totalsarana+rstindakan.getDouble("totalsarana");
+                                totaljm=totaljm+rstindakan.getDouble("totaljm");
+                                totalbayar=totalbayar+rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana");
+                                tabMode.addRow(new Object[]{
+                                    rsreg.getString("no_rawat"),rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
+                                    rsreg.getString("tgl_registrasi"),tglkeluar,
+                                    dpjp,rstindakan.getString("nama"),"","",
+                                    rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),"Ralan",
+                                    namaruangan,rstindakan.getString("nm_perawatan"),
+                                    rstindakan.getString("jumlah"),rstindakan.getDouble("sarana"),
+                                    rstindakan.getDouble("tarif_tindakanpr"),
+                                    (rstindakan.getDouble("sarana")+rstindakan.getDouble("tarif_tindakanpr")),
+                                    rstindakan.getDouble("totalsarana"),rstindakan.getDouble("totaljm"),
+                                    (rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana")),
+                                    rstindakan.getString("tgl_perawatan")                                    
+                                });
+                            }                           
+                        } catch (Exception e) {
+                            System.out.println("Notif Ralan dr : "+e);
                         } finally{
                             if(rstindakan!=null){
                                 rstindakan.close();
@@ -1337,9 +1422,9 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                                 totaljm=totaljm+rstindakan.getDouble("totaljm");
                                 totalbayar=totalbayar+rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana");
                                 tabMode.addRow(new Object[]{
-                                    rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
+                                    rsreg.getString("no_rawat"),rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
                                     rsreg.getString("tgl_registrasi"),tglkeluar,
-                                    rstindakan.getString("nm_dokter"),"","",
+                                    dpjp,rstindakan.getString("nm_dokter"),"","",
                                     rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),"Ranap",
                                     namaruangan,rstindakan.getString("nm_perawatan"),
                                     rstindakan.getString("jumlah"),rstindakan.getDouble("sarana"),
@@ -1380,9 +1465,9 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                                 totaljm=totaljm+rstindakan.getDouble("totaljm");
                                 totalbayar=totalbayar+rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana");
                                 tabMode.addRow(new Object[]{
-                                    rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
+                                    rsreg.getString("no_rawat"),rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
                                     rsreg.getString("tgl_registrasi"),tglkeluar,
-                                    rstindakan.getString("nm_dokter"),"","",
+                                    dpjp,rstindakan.getString("nm_dokter"),"","",
                                     rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),"Ranap",
                                     namaruangan,rstindakan.getString("nm_perawatan"),
                                     rstindakan.getString("jumlah"),rstindakan.getDouble("sarana"),
@@ -1392,9 +1477,52 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                                     (rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana")),
                                     rstindakan.getString("tgl_perawatan")                                    
                                 });
-                            }                           
+                            }   
+                            
                         } catch (Exception e) {
                             System.out.println("Notif Inap dr pr : "+e);
+                        } finally{
+                            if(rstindakan!=null){
+                                rstindakan.close();
+                            }
+                            if(pstindakan!=null){
+                                pstindakan.close();
+                            }
+                        }
+                        
+                        pstindakan=koneksi.prepareStatement(
+                                "select jns_perawatan_inap.nm_perawatan,petugas.nama, "+
+                                "rawat_inap_pr.tgl_perawatan,count(rawat_inap_pr.no_rawat) as jumlah, "+
+                                "rawat_inap_pr.tarif_tindakanpr,sum(rawat_inap_pr.tarif_tindakanpr) as totaljm,"+
+                                "(rawat_inap_pr.material+rawat_inap_pr.bhp+rawat_inap_pr.kso+rawat_inap_pr.menejemen) as sarana,"+
+                                "sum(rawat_inap_pr.material+rawat_inap_pr.bhp+rawat_inap_pr.kso+rawat_inap_pr.menejemen) as totalsarana "+
+                                "from rawat_inap_pr inner join jns_perawatan_inap inner join petugas on "+
+                                "rawat_inap_pr.kd_jenis_prw=jns_perawatan_inap.kd_jenis_prw and "+
+                                "rawat_inap_pr.nip=petugas.nip where rawat_inap_pr.no_rawat=? "+
+                                "group by rawat_inap_pr.kd_jenis_prw,rawat_inap_pr.tgl_perawatan");
+                        try {
+                            pstindakan.setString(1,rsreg.getString("no_rawat"));
+                            rstindakan=pstindakan.executeQuery();
+                            while(rstindakan.next()){
+                                totalsarana=totalsarana+rstindakan.getDouble("totalsarana");
+                                totaljm=totaljm+rstindakan.getDouble("totaljm");
+                                totalbayar=totalbayar+rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana");
+                                tabMode.addRow(new Object[]{
+                                    rsreg.getString("no_rawat"),rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
+                                    rsreg.getString("tgl_registrasi"),tglkeluar,
+                                    dpjp,rstindakan.getString("nama"),"","",
+                                    rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),"Ranap",
+                                    namaruangan,rstindakan.getString("nm_perawatan"),
+                                    rstindakan.getString("jumlah"),rstindakan.getDouble("sarana"),
+                                    rstindakan.getDouble("tarif_tindakanpr"),
+                                    (rstindakan.getDouble("sarana")+rstindakan.getDouble("tarif_tindakanpr")),
+                                    rstindakan.getDouble("totalsarana"),rstindakan.getDouble("totaljm"),
+                                    (rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana")),
+                                    rstindakan.getString("tgl_perawatan")                                    
+                                });
+                            }                           
+                        } catch (Exception e) {
+                            System.out.println("Notif Inap dr : "+e);
                         } finally{
                             if(rstindakan!=null){
                                 rstindakan.close();
@@ -1425,9 +1553,9 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                                 totaljm=totaljm+rstindakan.getDouble("totaljm");
                                 totalbayar=totalbayar+rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana");
                                 tabMode.addRow(new Object[]{
-                                    rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
+                                    rsreg.getString("no_rawat"),rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
                                     rsreg.getString("tgl_registrasi"),tglkeluar,
-                                    rstindakan.getString("nm_dokter"),"","",
+                                    dpjp,rstindakan.getString("nm_dokter"),"","",
                                     rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),
                                     "Radiologi",namaruangan,rstindakan.getString("nm_perawatan"),
                                     rstindakan.getString("jumlah"),rstindakan.getDouble("sarana"),
@@ -1453,7 +1581,7 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                     //operasi
                     if(chkOperasi.isSelected()==true){
                         pstindakan=koneksi.prepareStatement(
-                                "select paket_operasi.nm_perawatan,dokter.nm_dokter,operasi.dokter_anestesi,operasi.dokter_anak, "+
+                                "select paket_operasi.nm_perawatan,dokter.nm_dokter,operasi.dokter_anestesi,operasi.dokter_anak,operasi.status, "+
                                 "DATE_FORMAT(tgl_operasi, '%Y-%m-%d') as tgl_operasi,count(operasi.no_rawat) as jumlah, "+
                                 "(operasi.biayaoperator1+biayadokter_anestesi+biayadokter_anak) as biayaoperator1,sum(operasi.biayaoperator1+biayadokter_anestesi+biayadokter_anak) as totaljm,"+
                                 "(operasi.biayaoperator2+operasi.biayaoperator3+operasi.biayaasisten_operator1+operasi.biayaasisten_operator2+operasi.biayaasisten_operator3+operasi.biayainstrumen+operasi.biayaperawaat_resusitas+operasi.biayaasisten_anestesi+operasi.biayaasisten_anestesi2+operasi.biayabidan+operasi.biayabidan2+operasi.biayabidan3+operasi.biayaperawat_luar+operasi.biayaalat+operasi.biayasewaok+operasi.akomodasi+operasi.bagian_rs+operasi.biaya_omloop+operasi.biaya_omloop2+operasi.biaya_omloop3+operasi.biaya_omloop4+operasi.biaya_omloop5+operasi.biayasarpras+operasi.biaya_dokter_pjanak+operasi.biaya_dokter_umum) as sarana,"+
@@ -1469,21 +1597,39 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                                 totalsarana=totalsarana+rstindakan.getDouble("totalsarana");
                                 totaljm=totaljm+rstindakan.getDouble("totaljm");
                                 totalbayar=totalbayar+rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana");
-                                tabMode.addRow(new Object[]{
-                                    rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
-                                    rsreg.getString("tgl_registrasi"),tglkeluar,
-                                    rstindakan.getString("nm_dokter"),
-                                    Sequel.cariIsi("select nm_dokter from dokter where kd_dokter=?",rstindakan.getString("dokter_anestesi")),
-                                    Sequel.cariIsi("select nm_dokter from dokter where kd_dokter=?",rstindakan.getString("dokter_anak")),
-                                    rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),"Operasi",
-                                    namaruangan,rstindakan.getString("nm_perawatan"),
-                                    rstindakan.getString("jumlah"),rstindakan.getDouble("sarana"),
-                                    rstindakan.getDouble("biayaoperator1"),
-                                    (rstindakan.getDouble("sarana")+rstindakan.getDouble("biayaoperator1")),
-                                    rstindakan.getDouble("totalsarana"),rstindakan.getDouble("totaljm"),
-                                    (rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana")),
-                                    rstindakan.getString("tgl_operasi")
-                                });    
+                                if(rstindakan.getString("status").equals("Ralan")){
+                                    tabMode.addRow(new Object[]{
+                                        rsreg.getString("no_rawat"),rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
+                                        rsreg.getString("tgl_registrasi"),tglkeluar,
+                                        dpjp,rstindakan.getString("nm_dokter"),
+                                        Sequel.cariIsi("select nm_dokter from dokter where kd_dokter=?",rstindakan.getString("dokter_anestesi")),
+                                        Sequel.cariIsi("select nm_dokter from dokter where kd_dokter=?",rstindakan.getString("dokter_anak")),
+                                        rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),rsreg.getString("nm_poli"),
+                                        namaruangan,rstindakan.getString("nm_perawatan"),
+                                        rstindakan.getString("jumlah"),rstindakan.getDouble("sarana"),
+                                        rstindakan.getDouble("biayaoperator1"),
+                                        (rstindakan.getDouble("sarana")+rstindakan.getDouble("biayaoperator1")),
+                                        rstindakan.getDouble("totalsarana"),rstindakan.getDouble("totaljm"),
+                                        (rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana")),
+                                        rstindakan.getString("tgl_operasi")
+                                    });   
+                                }else{
+                                    tabMode.addRow(new Object[]{
+                                        rsreg.getString("no_rawat"),rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
+                                        rsreg.getString("tgl_registrasi"),tglkeluar,
+                                        dpjp,rstindakan.getString("nm_dokter"),
+                                        Sequel.cariIsi("select nm_dokter from dokter where kd_dokter=?",rstindakan.getString("dokter_anestesi")),
+                                        Sequel.cariIsi("select nm_dokter from dokter where kd_dokter=?",rstindakan.getString("dokter_anak")),
+                                        rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),"Operasi",
+                                        namaruangan,rstindakan.getString("nm_perawatan"),
+                                        rstindakan.getString("jumlah"),rstindakan.getDouble("sarana"),
+                                        rstindakan.getDouble("biayaoperator1"),
+                                        (rstindakan.getDouble("sarana")+rstindakan.getDouble("biayaoperator1")),
+                                        rstindakan.getDouble("totalsarana"),rstindakan.getDouble("totaljm"),
+                                        (rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana")),
+                                        rstindakan.getString("tgl_operasi")
+                                    });   
+                                }                                     
                             }                           
                         } catch (Exception e) {
                             System.out.println("Notif Ralan dr : "+e);
@@ -1517,9 +1663,9 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                                 totaljm=totaljm+rstindakan.getDouble("totaljm");
                                 totalbayar=totalbayar+rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana");
                                 tabMode.addRow(new Object[]{
-                                    rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
+                                    rsreg.getString("no_rawat"),rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
                                     rsreg.getString("tgl_registrasi"),tglkeluar,
-                                    rstindakan.getString("nm_dokter"),"","",
+                                    dpjp,rstindakan.getString("nm_dokter"),"","",
                                     rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),
                                     "Laborat",namaruangan,rstindakan.getString("nm_perawatan"),
                                     rstindakan.getString("jumlah"),rstindakan.getDouble("sarana"),
@@ -1562,9 +1708,9 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                                 totaljm=totaljm+rstindakan.getDouble("totaljm");
                                 totalbayar=totalbayar+rstindakan.getDouble("totaljm")+rstindakan.getDouble("totalsarana");
                                 tabMode.addRow(new Object[]{
-                                    rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
+                                    rsreg.getString("no_rawat"),rsreg.getString("no_rkm_medis"),rsreg.getString("nm_pasien"),
                                     rsreg.getString("tgl_registrasi"),tglkeluar,
-                                    rstindakan.getString("nm_dokter"),"","",
+                                    dpjp,rstindakan.getString("nm_dokter"),"","",
                                     rsreg.getString("kd_pj"),rsreg.getString("png_jawab"),
                                     "Laborat",namaruangan,rstindakan.getString("Pemeriksaan"),
                                     rstindakan.getString("jumlah"),rstindakan.getDouble("sarana"),
@@ -1589,7 +1735,7 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                 }      
                 if(totalbayar>0){
                     tabMode.addRow(new Object[]{
-                        "","Total :","","","","","","","","","","","",null,
+                        "","","Total :","","","","","","","","","","","","",null,
                         null,null,totalsarana,totaljm,totalbayar,""
                     });
                 }                    

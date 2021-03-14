@@ -3,7 +3,7 @@ import fungsi.WarnaTable;
 import fungsi.koneksiDB;
 import fungsi.sekuel;
 import fungsi.validasi;
-import fungsi.var;
+import fungsi.akses;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -35,14 +35,10 @@ public class DlgBubes extends javax.swing.JDialog {
     public DlgBubes(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-
-        Object[] row={"Tgl.Jurnal",
-                      "No.Jurnal",
-                      "Saldo Awal",
-                      "Debet",
-                      "Kredit",
-                      "Saldo Akhir"};
-        tabMode=new DefaultTableModel(null,row){
+        
+        tabMode=new DefaultTableModel(null,new Object[]{
+                "Tgl.Jurnal","No.Jurnal","No.Bukti","Keterangan","Saldo Awal","Debet","Kredit","Saldo Akhir"
+            }){
               @Override public boolean isCellEditable(int rowIndex, int colIndex){return false;}
         };
         tbDokter.setModel(tabMode);
@@ -50,14 +46,18 @@ public class DlgBubes extends javax.swing.JDialog {
         tbDokter.setPreferredScrollableViewportSize(new Dimension(800,800));
         tbDokter.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 8; i++) {
             TableColumn column = tbDokter.getColumnModel().getColumn(i);
             if(i==0){
-                column.setPreferredWidth(100);
+                column.setPreferredWidth(65);
             }else if(i==1){
-                column.setPreferredWidth(100);
+                column.setPreferredWidth(110);
+            }else if(i==2){
+                column.setPreferredWidth(120);
+            }else if(i==3){
+                column.setPreferredWidth(360);
             }else{
-                column.setPreferredWidth(150);
+                column.setPreferredWidth(130);
             }
         }
         tbDokter.setDefaultRenderer(Object.class, new WarnaTable());  
@@ -69,7 +69,7 @@ public class DlgBubes extends javax.swing.JDialog {
             public void windowClosing(WindowEvent e) {}
             @Override
             public void windowClosed(WindowEvent e) {
-                if(var.getform().equals("DlgBubes")){
+                if(akses.getform().equals("DlgBubes")){
                     if(rekening.getTabel().getSelectedRow()!= -1){      
                         kdrek.setText(rekening.getTabel().getValueAt(rekening.getTabel().getSelectedRow(),1).toString());
                         nmrek.setText(rekening.getTabel().getValueAt(rekening.getTabel().getSelectedRow(),2).toString());                        
@@ -92,7 +92,7 @@ public class DlgBubes extends javax.swing.JDialog {
             public void keyTyped(KeyEvent e) {}
             @Override
             public void keyPressed(KeyEvent e) {
-                if(var.getform().equals("DlgBubes")){
+                if(akses.getform().equals("DlgBubes")){
                     if(e.getKeyCode()==KeyEvent.VK_SPACE){
                         rekening.dispose();
                     }
@@ -134,7 +134,6 @@ public class DlgBubes extends javax.swing.JDialog {
         BtnCari = new widget.Button();
         panelisi1 = new widget.panelisi();
         BtnPrint = new widget.Button();
-        label9 = new widget.Label();
         BtnKeluar = new widget.Button();
 
         Kd2.setName("Kd2"); // NOI18N
@@ -149,7 +148,7 @@ public class DlgBubes extends javax.swing.JDialog {
             }
         });
 
-        internalFrame1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(240, 245, 235)), "::[ Buku Besar ]::", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(60,80,50))); // NOI18N
+        internalFrame1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(240, 245, 235)), "::[ Buku Besar ]::", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(50,50,50))); // NOI18N
         internalFrame1.setName("internalFrame1"); // NOI18N
         internalFrame1.setLayout(new java.awt.BorderLayout(1, 1));
 
@@ -167,7 +166,6 @@ public class DlgBubes extends javax.swing.JDialog {
 
             }
         ));
-        tbDokter.setToolTipText("Silahkan klik untuk memilih data yang mau diedit ataupun dihapus");
         tbDokter.setName("tbDokter"); // NOI18N
         scrollPane1.setViewportView(tbDokter);
 
@@ -268,10 +266,6 @@ public class DlgBubes extends javax.swing.JDialog {
         });
         panelisi1.add(BtnPrint);
 
-        label9.setName("label9"); // NOI18N
-        label9.setPreferredSize(new java.awt.Dimension(365, 30));
-        panelisi1.add(label9);
-
         BtnKeluar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/picture/exit.png"))); // NOI18N
         BtnKeluar.setMnemonic('K');
         BtnKeluar.setText("Keluar");
@@ -309,8 +303,8 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
             JOptionPane.showMessageDialog(null,"Maaf, data sudah habis. Tidak ada data yang bisa anda print...!!!!");
             Tahun.requestFocus();
         }else if(tabMode.getRowCount()!=0){
-            Sequel.AutoComitFalse();
-            Sequel.queryu("delete from temporary");
+            
+            Sequel.queryu("truncate table temporary");
             int row=tabMode.getRowCount();
             for(int i=0;i<row;i++){  
                 Sequel.menyimpan("temporary","'0','"+
@@ -320,19 +314,20 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                 tabMode.getValueAt(i,3).toString()+"','"+
                                 tabMode.getValueAt(i,4).toString()+"','"+
                                 tabMode.getValueAt(i,5).toString()+"','"+
-                                kdrek.getText()+", "+nmrek.getText()+"','"+Tahun.getSelectedItem()+"','','','','','','','','','','','','','','','','','','','','','','','','','','','','',''","Keuangan"); 
+                                tabMode.getValueAt(i,6).toString()+"','"+
+                                tabMode.getValueAt(i,7).toString()+"','"+
+                                kdrek.getText()+", "+nmrek.getText()+"','"+Tahun.getSelectedItem()+"','','','','','','','','','','','','','','','','','','','','','','','','','','',''","Keuangan"); 
             }
-            Sequel.AutoComitTrue();
+            
             Map<String, Object> param = new HashMap<>(); 
-                param.put("namars",var.getnamars());
-                param.put("alamatrs",var.getalamatrs());
-                param.put("kotars",var.getkabupatenrs());
-                param.put("propinsirs",var.getpropinsirs());
-                param.put("kontakrs",var.getkontakrs());
-                param.put("emailrs",var.getemailrs()); 
+                param.put("namars",akses.getnamars());
+                param.put("alamatrs",akses.getalamatrs());
+                param.put("kotars",akses.getkabupatenrs());
+                param.put("propinsirs",akses.getpropinsirs());
+                param.put("kontakrs",akses.getkontakrs());
+                param.put("emailrs",akses.getemailrs()); 
             param.put("logo",Sequel.cariGambar("select logo from setting")); 
-            Valid.MyReport("rptBubes.jrxml","report","::[ Laporan Keuangan ]::",
-                "select no, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp9, temp10, temp11, temp12, temp13, temp14 from temporary order by no asc",param);
+            Valid.MyReport("rptBubes.jasper","report","::[ Laporan Keuangan ]::",param);
         }
         this.setCursor(Cursor.getDefaultCursor());
     }//GEN-LAST:event_BtnPrintActionPerformed
@@ -383,11 +378,11 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
     }//GEN-LAST:event_kdrekKeyPressed
 
     private void BtnCari6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnCari6ActionPerformed
-        var.setform("DlgBubes");
+        akses.setform("DlgBubes");
         rekening.emptTeks();
         rekening.isCek();
         rekening.tampil();
-        rekening.setSize(internalFrame1.getWidth()-40,internalFrame1.getHeight()-40);
+        rekening.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
         rekening.setLocationRelativeTo(internalFrame1);
         rekening.setVisible(true);
     }//GEN-LAST:event_BtnCari6ActionPerformed
@@ -428,7 +423,6 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
     private widget.Label label17;
     private widget.Label label19;
     private widget.Label label32;
-    private widget.Label label9;
     private widget.TextBox nmrek;
     private widget.panelisi panelisi1;
     private widget.panelisi panelisi4;
@@ -441,7 +435,7 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
        String thn=" rekeningtahun.thn='"+Tahun.getSelectedItem()+"' ";               
        try{
             
-            ResultSet rs=koneksi.prepareStatement("select jurnal.tgl_jurnal,jurnal.no_jurnal,detailjurnal.debet,detailjurnal.kredit "+
+            ResultSet rs=koneksi.prepareStatement("select jurnal.tgl_jurnal,jurnal.no_jurnal,detailjurnal.debet,detailjurnal.kredit,jurnal.no_bukti,jurnal.keterangan "+
                             "from jurnal inner join detailjurnal on jurnal.no_jurnal=detailjurnal.no_jurnal  where "+
                             "detailjurnal.kd_rek='"+kdrek.getText()+"' and jurnal.tgl_jurnal like '%"+Tahun.getSelectedItem()+"%' ").executeQuery();
             
@@ -472,7 +466,7 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                 }
                 
                 tabMode.addRow(new Object[]{rs.getString(1),
-                               rs.getString(2),
+                               rs.getString(2),rs.getString("no_bukti"),rs.getString("keterangan"),
                                df2.format(saldoawal),
                                df2.format(rs.getDouble("debet")),
                                df2.format(rs.getDouble("kredit")),
@@ -488,7 +482,7 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
     }
     
     public void isCek(){
-        BtnPrint.setEnabled(var.getbuku_besar());
+        BtnPrint.setEnabled(akses.getbuku_besar());
     }
      
  

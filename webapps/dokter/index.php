@@ -37,7 +37,7 @@
                         </div>
                         <div class="content">
                             <div class="text">PASIEN POLI BULAN INI</div>
-                            <div class="number count-to" data-from="0" data-to="<?php echo num_rows(query("SELECT no_rawat FROM reg_periksa WHERE kd_poli = '{$_SESSION['jenis_poli']}' AND tgl_registrasi LIKE '%$month%'"));?>" data-speed="1000" data-fresh-interval="20"></div>
+                            <div class="number count-to" data-from="0" data-to="<?php echo num_rows(query("SELECT no_rawat FROM reg_periksa WHERE kd_poli = '{$_SESSION['jenis_poli']}' AND stts !='Belum' AND tgl_registrasi LIKE '%$month%'"));?>" data-speed="1000" data-fresh-interval="20"></div>
                         </div>
                     </div>
                 </div>
@@ -142,14 +142,14 @@
             <tbody>
             <?php
 
-            $sql = "SELECT a.no_rawat, b.no_rkm_medis, b.nm_pasien, a.stts FROM reg_periksa a, pasien b WHERE a.kd_poli = '{$_SESSION['jenis_poli']}' AND a.no_rkm_medis = b.no_rkm_medis AND a.tgl_registrasi = '$date' ORDER BY a.jam_reg ASC LIMIT 10";
+            $sql = "SELECT a.no_rawat, b.no_rkm_medis, b.nm_pasien, a.stts FROM reg_periksa a, pasien b WHERE a.kd_poli = '{$_SESSION['jenis_poli']}' AND a.no_rkm_medis = b.no_rkm_medis AND a.tgl_registrasi = '$date' ORDER BY a.jam_reg DESC LIMIT 10";
         $result = query($sql);
 		$no=1;
                 while($row = fetch_array($result)){
                     echo '<tr>';
         		    echo '<td>'.$no.'</td>';
                     echo '<td>';
-                    echo '<a href="pasien.php?action=view&tanggal='.$_POST['tanggal'].'&id='.$row['1'].'" class="title">'.ucwords(strtolower($row['2'])).'</a>';
+                    echo '<a href="pasien-ralan.php?action=view&no_rawat='.$row['0'].'" class="title">'.ucwords(strtolower($row['2'])).'</a>';
                     echo '</td>';
                     echo '<td>'.$row['3'].'</td>';
                     echo '</tr>';

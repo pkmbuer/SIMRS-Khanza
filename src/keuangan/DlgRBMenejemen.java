@@ -4,7 +4,7 @@ import fungsi.batasInput;
 import fungsi.koneksiDB;
 import fungsi.sekuel;
 import fungsi.validasi;
-import fungsi.var;
+import fungsi.akses;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import simrskhanza.DlgPenanggungJawab;
+import simrskhanza.DlgCariCaraBayar;
 
 public class DlgRBMenejemen extends javax.swing.JDialog {
     private final DefaultTableModel tabMode;
@@ -30,9 +30,9 @@ public class DlgRBMenejemen extends javax.swing.JDialog {
     private Jurnal jur=new Jurnal();
     private Connection koneksi=koneksiDB.condb();
     private PreparedStatement ps,psralanpr,psralandrpr,psralandr,psperiksalab,psranappr,
-            psranapdrpr,psranapdr,psdetaillab,psperiksaradiologi;
+            psranapdrpr,psranapdr,psdetaillab,psperiksaradiologi,psbagian_rs;
     private ResultSet rs,rsralanpr,rsralandrpr,rsralandr,rsperiksalab,rsranappr,rsranapdrpr,
-            rsranapdr,rsdetaillab,rsperiksaradiologi;
+            rsranapdr,rsdetaillab,rsperiksaradiologi,rsbagian_rs;
 
     /** Creates new form DlgProgramStudi
      * @param parent
@@ -106,7 +106,7 @@ public class DlgRBMenejemen extends javax.swing.JDialog {
         });   
      
     }
-    private DlgPenanggungJawab penjab=new DlgPenanggungJawab(null,false);
+    private DlgCariCaraBayar penjab=new DlgCariCaraBayar(null,false);
     private int i=0,a=0;
     private double jm=0,totaljm=0,detaillab=0;
 
@@ -135,6 +135,7 @@ public class DlgRBMenejemen extends javax.swing.JDialog {
         panelisi1 = new widget.panelisi();
         chkRalan = new widget.CekBox();
         chkRanap = new widget.CekBox();
+        chkOperasi = new widget.CekBox();
         chkLaborat = new widget.CekBox();
         chkRadiologi = new widget.CekBox();
         BtnAll = new widget.Button();
@@ -150,7 +151,7 @@ public class DlgRBMenejemen extends javax.swing.JDialog {
             }
         });
 
-        internalFrame1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(240, 245, 235)), "::[ Rekap Bulanan Menejemen Rumah Sakit ]::", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(90,120,80))); // NOI18N
+        internalFrame1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(240, 245, 235)), "::[ Rekap Bulanan Menejemen Rumah Sakit ]::", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(50,50,50))); // NOI18N
         internalFrame1.setName("internalFrame1"); // NOI18N
         internalFrame1.setLayout(new java.awt.BorderLayout(1, 1));
 
@@ -168,7 +169,6 @@ public class DlgRBMenejemen extends javax.swing.JDialog {
 
             }
         ));
-        tbDokter.setToolTipText("Silahkan klik untuk memilih data yang mau diedit ataupun dihapus");
         tbDokter.setName("tbDokter"); // NOI18N
         scrollPane1.setViewportView(tbDokter);
 
@@ -183,7 +183,6 @@ public class DlgRBMenejemen extends javax.swing.JDialog {
         label11.setPreferredSize(new java.awt.Dimension(85, 23));
         panelisi4.add(label11);
 
-        Tgl1.setEditable(false);
         Tgl1.setDisplayFormat("dd-MM-yyyy");
         Tgl1.setName("Tgl1"); // NOI18N
         Tgl1.setPreferredSize(new java.awt.Dimension(100, 23));
@@ -200,7 +199,6 @@ public class DlgRBMenejemen extends javax.swing.JDialog {
         label18.setPreferredSize(new java.awt.Dimension(30, 23));
         panelisi4.add(label18);
 
-        Tgl2.setEditable(false);
         Tgl2.setDisplayFormat("dd-MM-yyyy");
         Tgl2.setName("Tgl2"); // NOI18N
         Tgl2.setPreferredSize(new java.awt.Dimension(100, 23));
@@ -275,7 +273,7 @@ public class DlgRBMenejemen extends javax.swing.JDialog {
         chkRalan.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         chkRalan.setName("chkRalan"); // NOI18N
         chkRalan.setOpaque(false);
-        chkRalan.setPreferredSize(new java.awt.Dimension(110, 30));
+        chkRalan.setPreferredSize(new java.awt.Dimension(85, 30));
         chkRalan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 chkRalanActionPerformed(evt);
@@ -288,7 +286,7 @@ public class DlgRBMenejemen extends javax.swing.JDialog {
         chkRanap.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         chkRanap.setName("chkRanap"); // NOI18N
         chkRanap.setOpaque(false);
-        chkRanap.setPreferredSize(new java.awt.Dimension(110, 30));
+        chkRanap.setPreferredSize(new java.awt.Dimension(85, 30));
         chkRanap.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 chkRanapActionPerformed(evt);
@@ -296,12 +294,25 @@ public class DlgRBMenejemen extends javax.swing.JDialog {
         });
         panelisi1.add(chkRanap);
 
+        chkOperasi.setSelected(true);
+        chkOperasi.setText("Operasi");
+        chkOperasi.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        chkOperasi.setName("chkOperasi"); // NOI18N
+        chkOperasi.setOpaque(false);
+        chkOperasi.setPreferredSize(new java.awt.Dimension(85, 30));
+        chkOperasi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkOperasiActionPerformed(evt);
+            }
+        });
+        panelisi1.add(chkOperasi);
+
         chkLaborat.setSelected(true);
         chkLaborat.setText("Laboratorium");
         chkLaborat.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         chkLaborat.setName("chkLaborat"); // NOI18N
         chkLaborat.setOpaque(false);
-        chkLaborat.setPreferredSize(new java.awt.Dimension(110, 30));
+        chkLaborat.setPreferredSize(new java.awt.Dimension(100, 30));
         chkLaborat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 chkLaboratActionPerformed(evt);
@@ -314,7 +325,7 @@ public class DlgRBMenejemen extends javax.swing.JDialog {
         chkRadiologi.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         chkRadiologi.setName("chkRadiologi"); // NOI18N
         chkRadiologi.setOpaque(false);
-        chkRadiologi.setPreferredSize(new java.awt.Dimension(110, 30));
+        chkRadiologi.setPreferredSize(new java.awt.Dimension(85, 30));
         chkRadiologi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 chkRadiologiActionPerformed(evt);
@@ -394,8 +405,8 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
             JOptionPane.showMessageDialog(null,"Maaf, data sudah habis. Tidak ada data yang bisa anda print...!!!!");
             //TCari.requestFocus();
         }else if(tabMode.getRowCount()!=0){
-            Sequel.AutoComitFalse();
-            Sequel.queryu("delete from temporary");
+            
+            Sequel.queryu("truncate table temporary");
             int row=tabMode.getRowCount();
             for(int r=0;r<row;r++){  
                 Sequel.menyimpan("temporary","'0','"+
@@ -405,17 +416,16 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
                                 tabMode.getValueAt(r,3).toString().replaceAll("'","`")+"','"+
                                 tabMode.getValueAt(r,4).toString().replaceAll("'","`")+"','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','',''","Rekap Harian BulananDokter"); 
             }
-            Sequel.AutoComitTrue();
+            
             Map<String, Object> param = new HashMap<>();
-                param.put("namars",var.getnamars());
-                param.put("alamatrs",var.getalamatrs());
-                param.put("kotars",var.getkabupatenrs());
-                param.put("propinsirs",var.getpropinsirs());
-                param.put("kontakrs",var.getkontakrs());
-                param.put("emailrs",var.getemailrs());   
+                param.put("namars",akses.getnamars());
+                param.put("alamatrs",akses.getalamatrs());
+                param.put("kotars",akses.getkabupatenrs());
+                param.put("propinsirs",akses.getpropinsirs());
+                param.put("kontakrs",akses.getkontakrs());
+                param.put("emailrs",akses.getemailrs());   
                 param.put("logo",Sequel.cariGambar("select logo from setting")); 
-            Valid.MyReport("rptRBMenejemen.jrxml","report","[ Rekap Bulanan Menejemen Rumah Sakit ]",
-                "select no, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp9, temp10, temp11, temp12, temp13, temp14 from temporary order by no asc",param);
+            Valid.MyReport("rptRBMenejemen.jasper","report","[ Rekap Bulanan Menejemen Rumah Sakit ]",param);
         }
         this.setCursor(Cursor.getDefaultCursor());
     }//GEN-LAST:event_BtnPrintActionPerformed
@@ -469,7 +479,7 @@ private void KdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TKdKey
 
 private void btnBangsalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBangsalActionPerformed
         penjab.isCek();       
-        penjab.setSize(internalFrame1.getWidth()-50,internalFrame1.getHeight()-50);
+        penjab.setSize(internalFrame1.getWidth()-20,internalFrame1.getHeight()-20);
         penjab.setLocationRelativeTo(internalFrame1);
         penjab.setAlwaysOnTop(false);
         penjab.setVisible(true);
@@ -520,6 +530,10 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
         prosesCari();
     }//GEN-LAST:event_chkRalanActionPerformed
 
+    private void chkOperasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkOperasiActionPerformed
+        prosesCari();
+    }//GEN-LAST:event_chkOperasiActionPerformed
+
     /**
     * @param args the command line arguments
     */
@@ -545,6 +559,7 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
     private widget.Tanggal Tgl2;
     private widget.Button btnBangsal;
     private widget.CekBox chkLaborat;
+    private widget.CekBox chkOperasi;
     private widget.CekBox chkRadiologi;
     private widget.CekBox chkRalan;
     private widget.CekBox chkRanap;
@@ -769,7 +784,45 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                             }
                         }
                    }
-                                       
+                                
+                   if(chkOperasi.isSelected()==true){
+                        psbagian_rs=koneksi.prepareStatement("select paket_operasi.nm_perawatan,operasi.bagian_rs,"+
+                            "count(operasi.kode_paket) as jml, " +
+                            "sum(operasi.bagian_rs) as total "+
+                            "from paket_operasi inner join operasi inner join reg_periksa "+
+                            "on operasi.no_rawat=reg_periksa.no_rawat and operasi.kode_paket=paket_operasi.kode_paket "+
+                            "where operasi.tgl_operasi between ? and ? and reg_periksa.kd_pj=? "+
+                            "and operasi.bagian_rs>0 group by operasi.kode_paket order by paket_operasi.nm_perawatan  ");
+                        try {
+                            psbagian_rs.setString(1,Valid.SetTgl(Tgl1.getSelectedItem()+"")+" 00:00:00");
+                            psbagian_rs.setString(2,Valid.SetTgl(Tgl2.getSelectedItem()+"")+" 23:59:59");
+                            psbagian_rs.setString(3,rs.getString("kd_pj"));
+                            rsbagian_rs=psbagian_rs.executeQuery();  
+                            if(rsbagian_rs.next()){
+                                a++;
+                                tabMode.addRow(new Object[]{"","",a+". Operasi/VK ","","",""}); 
+                            }
+                            
+                            rsbagian_rs.beforeFirst();
+                            while(rsbagian_rs.next()){
+                                tabMode.addRow(new Object[]{
+                                    "","","     "+rsbagian_rs.getString("nm_perawatan")+" (N.M.S)",
+                                    rsbagian_rs.getString("jml"),Valid.SetAngka(rsbagian_rs.getDouble("total"))
+                                });       
+                                jm=jm+rsbagian_rs.getDouble("total");
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Notif Operasi : "+e);
+                        } finally{                              
+                            if(rsbagian_rs!=null){
+                                rsbagian_rs.close();
+                            }                            
+                            if(psbagian_rs!=null){
+                                psbagian_rs.close();
+                            }
+                        }
+                   }
+                   
                    if(chkLaborat.isSelected()==true){
                         psperiksalab=koneksi.prepareStatement("select jns_perawatan_lab.nm_perawatan,periksa_lab.menejemen,"+
                             "count(periksa_lab.kd_jenis_prw) as jml, " +
@@ -785,7 +838,7 @@ private void BtnCariKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_B
                             rsperiksalab=psperiksalab.executeQuery();
                             if(rsperiksalab.next()){
                                 a++;
-                                 tabMode.addRow(new Object[]{"","",a+". Periksa Lab ","",""}); 
+                                tabMode.addRow(new Object[]{"","",a+". Periksa Lab ","",""}); 
                             }
                             rsperiksalab.beforeFirst();
                             while(rsperiksalab.next()){ 

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /***
 * e-Dokter from version 0.1 Beta
@@ -16,18 +16,23 @@ session_start();
 
 require_once('config.php');
 
-$data=fetch_array(query("SELECT AES_DECRYPT(a.id_user,'nur') as id_user, AES_DECRYPT(a.password,'windi') as password,  b.kd_poli as kd_poli from user a, jadwal b where a.id_user = AES_ENCRYPT('{$_COOKIE[username]}','nur') and b.kd_dokter = '$_COOKIE[username]' and a.password = AES_ENCRYPT('{$_COOKIE[password]}','windi')")); 
+if(PRODUCTION == 'YES') {
+  ini_set('display_errors', 0);
+  error_reporting(E_ERROR | E_WARNING | E_PARSE);
+}
+
+$data=fetch_array(query("SELECT AES_DECRYPT(a.id_user,'nur') as id_user, AES_DECRYPT(a.password,'windi') as password,  b.kd_poli as kd_poli from user a, jadwal b where a.id_user = AES_ENCRYPT('{$_COOKIE['username']}','nur') and b.kd_dokter = '$_COOKIE[username]' and a.password = AES_ENCRYPT('{$_COOKIE['password']}','windi')"));
 
 $user = $data[0];
 $pass = $data[1];
 
-if (!isset($_COOKIE['username']) && !isset($_COOKIE['password'])) { 
-    redirect('login.php'); 
-} else if (($_COOKIE['username'] != $user) || ($_COOKIE['password'] != $pass)) { 
-    redirect('login.php?action=logout'); 
-} else { 
-    $_SESSION['username'] = $_COOKIE['username']; 
-    $_SESSION['jenis_poli'] = $data[2];    
+if (!isset($_COOKIE['username']) && !isset($_COOKIE['password'])) {
+    redirect('login.php');
+} else if (($_COOKIE['username'] != $user) || ($_COOKIE['password'] != $pass)) {
+    redirect('login.php?action=logout');
+} else {
+    $_SESSION['username'] = $_COOKIE['username'];
+    $_SESSION['jenis_poli'] = $data[2];
 }
 
 ?>
@@ -42,10 +47,10 @@ if (!isset($_COOKIE['username']) && !isset($_COOKIE['password'])) {
     <link rel="icon" href="favicon.ico" type="image/x-icon">
 
     <!-- Google Fonts -->
-    <link href="css/roboto.css" rel="stylesheet">
+    <link href="assets/css/roboto.css" rel="stylesheet">
 
     <!-- Material Icon Css -->
-    <link href="css/material-icon.css" rel="stylesheet">
+    <link href="assets/css/material-icon.css" rel="stylesheet">
 
     <!-- Bootstrap Core Css -->
     <link href="plugins/bootstrap/css/bootstrap.css" rel="stylesheet">
@@ -72,17 +77,21 @@ if (!isset($_COOKIE['username']) && !isset($_COOKIE['password'])) {
     <!-- Wait Me Css -->
     <link href="plugins/waitme/waitMe.css" rel="stylesheet" />
 
-    <link rel="stylesheet" href="css/jquery-ui.min.css">
-    <link rel="stylesheet" href="css/select2.min.css">
+    <link rel="stylesheet" href="assets/css/jquery-ui.min.css">
+    <link rel="stylesheet" href="assets/css/select2.min.css">
+ 	  <link href="plugins/light-gallery/css/lightgallery.css" rel="stylesheet">
 
     <!-- Custom Css -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
 
     <!-- AdminBSB Themes. You can choose a theme from css/themes instead of get all themes -->
-    <link href="css/all-themes.min.css" rel="stylesheet" />
+    <link href="assets/css/all-themes.min.css" rel="stylesheet" />
 </head>
 
 <body class="theme-green">
+<?php
+  if(PRODUCTION == 'YES') {
+?>
     <!-- Page Loader -->
     <div class="page-loader-wrapper">
         <div class="loader">
@@ -100,6 +109,9 @@ if (!isset($_COOKIE['username']) && !isset($_COOKIE['password'])) {
         </div>
     </div>
     <!-- #END# Page Loader -->
+<?php
+  }
+?>
     <!-- Overlay For Sidebars -->
     <div class="overlay"></div>
     <!-- #END# Overlay For Sidebars -->
